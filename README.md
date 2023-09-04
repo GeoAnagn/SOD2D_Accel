@@ -92,11 +92,11 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
     "sod2d_path" : "path_of_sod2d_executable",
     "gpu_ids": "0, ..., x",
     "rank_num": "x",
-    "dataframe_columns": ["var1"
-                          ...
-                          "varN" 
+    "dataframe_columns": ["var1",
+                          ...,
+                          "varN", 
                           "time"],
-    "program_end": Y,
+    "program_end": 1000,
     "parameters": [
         {
             "name": "var1",
@@ -105,7 +105,7 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
             "multiplier": 512,
             "type": "integer"
         },
-        ...
+        ...,
         {
             "name": "varN",
             "min" : 1,
