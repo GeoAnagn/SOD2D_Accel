@@ -9,7 +9,7 @@ A custom acceleration framework for CFD Simulation Framework SOD2D using the Ope
 - SOD2D with GPU support.  
   Follow instructions in https://gitlab.com/bsc_sod2d/sod2d_gitlab/-/wikis/home for detailed installation instructions.
 - Anaconda  
-  Follow instructions in https://docs.anaconda.com/free/anaconda/install/linux/ for detailed installation instructions.
+  Follow instructions in https://docs.anaconda.com/free/anaconda/install/linux/ for detailed installation.
 - A Dockerfile will be uploaded for plug and play capability.
 
 ### Environment Instalation instructions
@@ -30,7 +30,7 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 ├── Whitebox_Info.json
 ├── Whitebox_Tuner.py
 ├── Whitebox_Original.py
-├── example
+├── Example
 │   └── ...
 ├── Functions
 │   └── ...
@@ -44,7 +44,7 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 │       │   └── ...
 │       └── Original_Functions
 │           └── ...
-└── parsers
+└── Parsers
     └── results_plotter.py
 ```
 - **Blackbox_Original.py**  
@@ -80,6 +80,41 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 
 ### Blackbox Analysis
 
+#### First Steps
+- Move SOD2D example file to the **Example** folder
+- Run Blackbox_Original.py, this will create, if not already existent, an ./Archive/Blackbox_Analysis/Original_Example path including two files:
+  - **time.json**: Contains the total SOD2D execution time
+  - **openacc_timing.csv**: Contains the timing info for each function. (Can be used for checking if analysis has found a better solution.)
 
+#### Last step before analysis (JSON Explanation)
+```json
+{   
+    "sod2d_path" : "path_of_sod2d_executable",
+    "gpu_ids": "0, ..., x",
+    "rank_num": "x",
+    "dataframe_columns": ["var1"
+                          ...
+                          "varN" 
+                          "time"],
+    "program_end": Y,
+    "parameters": [
+        {
+            "name": "var1",
+            "min" : 1,
+            "max" : 1000,
+            "multiplier": 512,
+            "type": "integer"
+        },
+        ...
+        {
+            "name": "varN",
+            "min" : 1,
+            "max" : 32,
+            "multiplier": 32,
+            "type": "integer"
+        }
+    ]    
+}
+```
 
 ### Whitebox Analysis
