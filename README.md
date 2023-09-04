@@ -2,6 +2,8 @@
 
 A custom acceleration framework for CFD Simulation Framework SOD2D using the Opentuner library for the exploration of different combinations of OpenACC directives and loop optimization techniques based on execution time. 
 
+## Instalation
+
 ### Prerequisites
 - NVIDIA GPU/s. (AMD version pending...)
 - SOD2D with GPU support.  
@@ -24,8 +26,10 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 ```bash
 ├── Blackbox_Info.json
 ├── Blackbox_Tuner.py
+├── Blackbox_Original.py
 ├── Whitebox_Info.json
 ├── Whitebox_Tuner.py
+├── Whitebox_Original.py
 ├── example
 │   └── ...
 ├── Functions
@@ -43,11 +47,14 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 └── parsers
     └── results_plotter.py
 ```
-
+- **Blackbox_Original.py**  
+  Python file for collecting timing information on the original SOD2D execution.
 - **Blackbox_Tuner.py**  
   Main python file for the blackbox exploration of the SOD2D execution.
 - **Blackbox_Info.json**  
   Blackbox info file for parameter setup. (Detailed explanation in usage section.)
+- **Whitebox_Original.py**  
+  Python file for executing SOD2D with function input and output storing.
 - **Whitebox_Tuner.py**  
   Main python file for the whitebox exploration of the SOD2D execution.
 - **Whitebox_Info.json**  
@@ -60,11 +67,19 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
   - **Blackbox_Analysis**  
     Folder containing the modified SOD2D files for the blackbox exploration. (Detailed explanation in the first steps in usage section.)
   - **Whitebox_Analysis**
-    - **Function_Call_Data_Generators**
+    - **Function_Call_Data_Generators**  
       Folder containing the modified SOD2D files for the function call input parameters and result outputs storing.
-    - **Modified_Functions**
+    - **Modified_Functions**  
       Folder containing the standalone versions of the SOD2D functions fot whitebox analysis.
     - **Original_Functions**  
       Folder containing the original standalone versions of the SOD2D functions.
 - **Parsers**  
-  Folder containing files for postprocessing. 
+  Folder containing files for postprocessing.
+
+## Usage
+
+### Blackbox Analysis
+
+
+
+### Whitebox Analysis
