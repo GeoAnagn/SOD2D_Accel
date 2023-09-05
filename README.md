@@ -86,6 +86,11 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
   - **time.json**: Contains the total SOD2D execution time
   - **openacc_timing.csv**: Contains the timing info for each function. (Can be used for checking if analysis has found a better solution.)
 
+#### SOD2D File Replacement
+In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the Modified_Sod2d_Files/Blackbox_Analysis folder. Bellow is an explanation of where the files should be placed. 
+
+- **elem_convec.f90**
+
 #### Last step before analysis (JSON Explanation)
 ```json
 {   
