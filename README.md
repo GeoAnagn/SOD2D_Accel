@@ -90,6 +90,40 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the Modified_Sod2d_Files/Blackbox_Analysis folder. Bellow is an explanation of where the files should be placed. 
 
 - **elem_convec.f90**
+  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  ```
+  cp Modified_Sod2d_Files/elem_convec.f90 {sod2d_folder}/src/lib_sod2d/sources
+  ```
+- **elem_diffu.f90**
+  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  ```
+  cp Modified_Sod2d_Files/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
+  ```
+- **mod_analysis.f90**
+  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  ```
+  cp Modified_Sod2d_Files/mod_analysis.f90 {sod2d_folder}/src/lib_sod2d/sources
+  ```
+- **mod_entropy_viscosity.f90**
+  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  ```
+  cp Modified_Sod2d_Files/mod_entropy_viscosity.f90 {sod2d_folder}/src/lib_sod2d/sources
+  ```
+- **TGVSolver**
+  Should be moved to *{sod2d_folder}/src/lib_mainBaseClass/sources*
+  ```
+  cp Modified_Sod2d_Files/TGVSolver.f90 {sod2d_folder}/src/lib_mainBaseClass/sources
+  ```
+- **time_integ.f90**
+  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  ```
+  cp Modified_Sod2d_Files/time_integ.f90 {sod2d_folder}/src/lib_sod2d/sources
+  ```
+
+Now in order for SOD2D to support the changes move to *{sod2d_folder}/build* folder and run:
+```
+make clean & make
+```
 
 #### Last step before analysis (JSON Explanation)
 ```json
