@@ -7,9 +7,9 @@ A custom acceleration framework for CFD Simulation Framework SOD2D using the Ope
 ### Prerequisites
 - NVIDIA GPU/s. (AMD version pending...)
 - SOD2D with GPU support.  
-  └── Follow instructions in https://gitlab.com/bsc_sod2d/sod2d_gitlab/-/wikis/home for detailed installation instructions.
+  └─ Follow instructions in https://gitlab.com/bsc_sod2d/sod2d_gitlab/-/wikis/home for detailed installation instructions.
 - Anaconda  
-  └── Follow instructions in https://docs.anaconda.com/free/anaconda/install/linux/ for detailed installation.
+  └─ Follow instructions in https://docs.anaconda.com/free/anaconda/install/linux/ for detailed installation.
 - A Dockerfile will be uploaded for plug and play capability.
 
 ### Environment Instalation instructions
@@ -48,33 +48,33 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
     └── ...
 ```
 - **Blackbox_Original.py**  
-  └── Python file for collecting timing information on the original SOD2D execution.
+  └─ Python file for collecting timing information on the original SOD2D execution.
 - **Blackbox_Tuner.py**  
-  └── Main python file for the blackbox exploration of the SOD2D execution.
+  └─ Main python file for the blackbox exploration of the SOD2D execution.
 - **Blackbox_Info.json**  
-  └── Blackbox info file for parameter setup. (Detailed explanation in usage section.)
+  └─ Blackbox info file for parameter setup. (Detailed explanation in usage section.)
 - **Whitebox_Original.py**  
-  └── Python file for executing SOD2D with function input and output storing.
+  └─ Python file for executing SOD2D with function input and output storing.
 - **Whitebox_Tuner.py**  
-  └── Main python file for the whitebox exploration of the SOD2D execution.
+  └─ Main python file for the whitebox exploration of the SOD2D execution.
 - **Whitebox_Info.json**  
-  └── Whitebox info file for parameter setup. (Detailed explanation in usage section.)
+  └─ Whitebox info file for parameter setup. (Detailed explanation in usage section.)
 - **Example**  
-  └── Folder for the example file that the SOD2D will use.
+  └─ Folder for the example file that the SOD2D will use.
 - **Functions**  
-  └── Folder where the custom functions, of the main python files, are stored.
+  └─ Folder where the custom functions, of the main python files, are stored.
 - **Modified_Sod2d_Files**
   - **Blackbox_Analysis**  
-    └── Folder containing the modified SOD2D files for the blackbox exploration. (Detailed explanation in the first steps in usage section.)
+    └─ Folder containing the modified SOD2D files for the blackbox exploration. (Detailed explanation in the first steps in usage section.)
   - **Whitebox_Analysis**
     - **Function_Call_Data_Generators**  
-      └── Folder containing the modified SOD2D files for the function call input parameters and result outputs storing.
+      └─ Folder containing the modified SOD2D files for the function call input parameters and result outputs storing.
     - **Modified_Functions**  
-      └── Folder containing the standalone versions of the SOD2D functions fot whitebox analysis.
+      └─ Folder containing the standalone versions of the SOD2D functions fot whitebox analysis.
     - **Original_Functions**  
-      └── Folder containing the original standalone versions of the SOD2D functions.
+      └─ Folder containing the original standalone versions of the SOD2D functions.
 - **Parsers**  
-  └── Folder containing files for postprocessing.
+  └─ Folder containing files for postprocessing.
 
 ## Usage
 
@@ -90,32 +90,32 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the Modified_Sod2d_Files/Blackbox_Analysis folder. Bellow is an explanation of where the files should be placed. 
 
 - **elem_convec.f90**  
-  └── Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  └─ Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
   cp Modified_Sod2d_Files/elem_convec.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **elem_diffu.f90**  
-  └── Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  └─ Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
   cp Modified_Sod2d_Files/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **mod_analysis.f90**  
-  └── Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  └─ Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
   cp Modified_Sod2d_Files/mod_analysis.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **mod_entropy_viscosity.f90**  
-  └── Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  └─ Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
   cp Modified_Sod2d_Files/mod_entropy_viscosity.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **TGVSolver**  
-  └── Should be moved to *{sod2d_folder}/src/lib_mainBaseClass/sources*
+  └─ Should be moved to *{sod2d_folder}/src/lib_mainBaseClass/sources*
   ```
   cp Modified_Sod2d_Files/TGVSolver.f90 {sod2d_folder}/src/lib_mainBaseClass/sources
   ```
 - **time_integ.f90**  
-  └── Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  └─ Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
   cp Modified_Sod2d_Files/time_integ.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
