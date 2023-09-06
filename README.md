@@ -45,7 +45,7 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 │       └── Original_Functions
 │           └── ...
 └── Parsers
-    └── results_plotter.py
+    └── ...
 ```
 - **Blackbox_Original.py**  
   Python file for collecting timing information on the original SOD2D execution.
