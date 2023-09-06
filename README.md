@@ -48,9 +48,9 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
     └── ...
 ```
 - **Blackbox_Original.py**  
-  └─ Python file for collecting timing information on the original SOD2D execution.
+  └ Python file for collecting timing information on the original SOD2D execution.
 - **Blackbox_Tuner.py**  
-  └─ Main python file for the blackbox exploration of the SOD2D execution.
+  └ Main python file for the blackbox exploration of the SOD2D execution.
 - **Blackbox_Info.json**  
   └─ Blackbox info file for parameter setup. (Detailed explanation in usage section.)
 - **Whitebox_Original.py**  
