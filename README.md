@@ -120,9 +120,9 @@ In order for the exploration to happen we need to move our modified SOD2D files 
   cp Modified_Sod2d_Files/time_integ.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 
-Now in order for SOD2D to support the changes move to *{sod2d_folder}/build* folder and run:
+Now in order for SOD2D to support the changes run:
 ```
-make clean & make
+cd {sod2d_folder}/build & make clean & make
 ```
 
 #### Last step before analysis (JSON Explanation)
