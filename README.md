@@ -14,7 +14,7 @@ A custom acceleration framework for CFD Simulation Framework SOD2D using the Ope
 
 ### Environment Instalation instructions
 Supposing you have not used our Dockerfile and you have all the presequisites setup, follow the following instructions to create a python environment and install the needed libraries:
-- conda env create -n {environment_name}
+- conda create --name {environment_name} python=3.8
 - conda activate {environment_name}
 - conda install pip
 - pip install numpy
