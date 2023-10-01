@@ -220,6 +220,17 @@ In order for the exploration to happen we need to move our modified SOD2D files 
 
 These version of the files include code that will store the input parameters and the result of the function call in a file until the program ends or user interrupt occurs. The files are stored in the ***Archive/Whitebox_Analysis/Data/{function_name}*** folder.  
 
-Now a simple exectution of SOD2D will be enough to collect the data needed for the analysis.
+Now in order for SOD2D to support the changes run:
+```
+cd {sod2d_folder}/build & make clean & make
+```
 
-(Note) More functions will be added in future versions.
+A simple exectution of SOD2D will be enough to collect the data needed for the analysis.
+
+**(Note)** More functions will be added in future versions.
+
+#### Per-function Executables
+
+
+
+
