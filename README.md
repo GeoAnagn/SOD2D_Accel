@@ -14,7 +14,7 @@ A custom acceleration framework for CFD Simulation Framework SOD2D using the Ope
 
 ### Environment Instalation instructions
 Supposing you have not used our Dockerfile and you have all the presequisites setup, follow the following instructions to create a python environment and install the needed libraries:
-- conda create --name {environment_name} python=3.8
+- conda create --name {environment_name} python=3.11
 - conda activate {environment_name}
 - conda install pip
 - pip install numpy
@@ -24,41 +24,45 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 
 ## Framework Folder Hierarchy
 ```bash
-├── Blackbox_Info.json
 ├── Blackbox_Tuner.py
 ├── Blackbox_Original.py
-├── Whitebox_Info.json
 ├── Whitebox_Tuner.py
 ├── Whitebox_Original.py
+├── JSONs
+│   ├── Blackbox_Info.json
+│   └── Whitebox_Info.json
 ├── Example
 │   └── ...
 ├── Functions
+│   ├── Parsers
 │   └── ...
-├── Modified_Sod2d_Files
-│   ├── Blackbox_Analysis
-│   │   └── ...
-│   └── Whitebox_Analysis
-│       ├── Function_Call_Data_Generators
-│       │   └── ...
-│       ├── Modified_Functions
-│       │   └── ...
-│       └── Original_Functions
-│           └── ...
-└── Parsers
-    └── ...
+└── Modified_Sod2d_Files
+    ├── Blackbox_Analysis
+    │   └── ...
+    └── Whitebox_Analysis
+        ├── Function_Call_Data_Generators
+        │   └── ...
+        ├── Modified_Functions
+        │   └── ...
+        └── Original_Functions
+            └── ...
+ 
 ```
 - **Blackbox_Original.py**  
   └ Python file for collecting timing information on the original SOD2D execution.
 - **Blackbox_Tuner.py**  
   └ Main python file for the blackbox exploration of the modified SOD2D execution.
-- **Blackbox_Info.json**  
-  └ Blackbox info file for parameter setup. (Detailed explanation in usage section.)
 - **Whitebox_Original.py**  
   └ Python file for executing SOD2D with function input and output storing.
 - **Whitebox_Tuner.py**  
   └ Main python file for the whitebox exploration of the modified SOD2D execution.
-- **Whitebox_Info.json**  
-  └ Whitebox info file for parameter setup. (Detailed explanation in usage section.)
+- **JSONs**
+  - **Original_Info.json**  
+    └ Info file for SOD2D execution. (Detailed explanation in usage section.)
+  - **Blackbox_Info.json**  
+    └ Blackbox info file for parameter setup. (Detailed explanation in usage section.)
+  - **Whitebox_Info.json**  
+    └ Whitebox info file for parameter setup. (Detailed explanation in usage section.)
 - **Example**  
   └ Folder for the example file that the SOD2D will use.
 - **Functions**  
@@ -73,8 +77,6 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
       └ Folder containing the standalone versions of the SOD2D functions fot whitebox analysis.
     - **Original_Functions**  
       └ Folder containing the original standalone versions of the SOD2D functions.
-- **Parsers**  
-  └ Folder containing files for postprocessing.
 
 ## Usage
 
@@ -82,7 +84,8 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 
 #### First Steps
 - Move SOD2D example file to the **Example** folder
-- Run Blackbox_Original.py, this will create, if not already existent, an ***Archive/Blackbox_Analysis/Original_Example*** path including two files:
+- Modify ***JSONs/Original_Info.json*** with the appropriate SOD2D path, example path, GPU ids, and rank number.
+- Run ***Blackbox_Original.py***, this will create, if not already existent, an ***Archive/Blackbox_Analysis/Original_Example*** path including two files:
   - **time.json**: Contains the total SOD2D execution time
   - **openacc_timing.csv**: Contains the timing info for each function. (Can be used for checking if analysis has found a better solution.)
 

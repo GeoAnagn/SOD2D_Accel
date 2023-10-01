@@ -1,0 +1,27 @@
+{
+    "sod2d_path": "path_of_sod2d_executable",
+    "gpu_ids": "0, ..., x",
+    "rank_num": "x",
+    "dataframe_columns": [
+        "var1",
+        "varN",
+        "time"
+    ],
+    "program_end": 1000,
+    "parameters": [
+        {
+            "name": "var1",
+            "min": 1,
+            "max": 1000,
+            "multiplier": 512,
+            "type": "integer"
+        },
+        {
+            "name": "varN",
+            "min": 1,
+            "max": 32,
+            "multiplier": 32,
+            "type": "integer"
+        }
+    ]
+}
