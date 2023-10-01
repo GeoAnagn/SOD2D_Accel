@@ -16,7 +16,7 @@ A custom acceleration framework for CFD Simulation Framework SOD2D using the Ope
 Supposing you have not used our Dockerfile and you have all the presequisites setup, follow the following instructions to create a python environment and install the needed libraries:
 - conda create --name {environment_name} python=3.11
 - conda activate {environment_name}
-- conda install pip
+- conda install pip (if not already installed)
 - pip install numpy
 - pip install pandas
 - pip install scikit-learn
@@ -89,7 +89,7 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
   - **time.json**: Contains the total SOD2D execution time
   - **openacc_timing.csv**: Contains the timing info for each function. (Can be used for checking if analysis has found a better solution.)
 
-#### SOD2D File Replacement
+#### SOD2D File Replacement (A script will be uploaded for plug and play capability)
 In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the **Modified_Sod2d_Files/Blackbox_Analysis** folder. Bellow is an explanation of where the files should be placed. 
 
 - **elem_convec.f90**  
@@ -144,7 +144,8 @@ cd {sod2d_folder}/build & make clean & make
                           ...,
                           "varN", 
                           "time"],
-    "program_end": 1000,
+    "repetitions": 1000,
+    "configs_to_check": 1000,
     "parameters": [
         {
             "name": "var1",
@@ -165,4 +166,60 @@ cd {sod2d_folder}/build & make clean & make
 }
 ```
 
+- **sod2d_path**    
+  └ Path of the SOD2D executable.
+- **gpu_ids**  
+  └ GPU ids to be used for the execution. (Separated by commas)
+- **rank_num**  
+  └ Rank number to be used for the execution.
+- **dataframe_columns**  
+  └ Columns of the dataframe that will be created. (Should include all the parameters and the time column.)
+- **repetitions**  
+  └ Number of consecutive executions that have configurations already checked. (If reached end exploration.)
+- **configs_to_check**  
+  └ Number of configurations to be checked in each exploration. (Should be less than the total number of configurations.)
+- **parameters**
+  - **name**  
+    └ Name of the parameter.
+  - **min**  
+    └ Minimum value of the parameter.
+  - **max**  
+    └ Maximum value of the parameter.
+  - **multiplier**  
+    └ Multiplier of the parameter. (Used for integer parameters.)
+  - **type**  
+    └ Type of the parameter. (integer or float)
+
+#### Analysis
+- Modify ***JSONs/Blackbox_Info.json*** with the appropriate parameters.
+- Run ***Blackbox_Tuner.py***, this will create, if not already existent, an ***Results/Tuner_Results/*** path including one file and one folder:
+  - **results.csv**: Contains the results of the exploration.
+  - **Configs**: Folder containing the results of each configuration seperately.
+
+- All the files in the ***Results/Tuner_Results/*** will be moved to ***Archive/Blackbox_Analysis/Modified_Folder*** upon completion of the exploration.
+
+Using the results of the exploration we can now modify the SOD2D files with the best configuration and rebuild SOD2D.
+
 ### Whitebox Analysis
+
+#### SOD2D File Replacement (A script will be uploaded for plug and play capability)
+In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the **Modified_Sod2d_Files/Whitebox_Analysis/Function_Call_Data_Generators** folder. Bellow is an explanation of where the files should be placed.
+
+- **elem_convec.f90**  
+  └ In this file the function that is modified and needs analysis is ***full_convec_ijk***.  
+  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  ```
+  cp Modified_Sod2d_Files/elem_convec.f90 {sod2d_folder}/src/lib_sod2d/sources
+  ```
+- **elem_diffu.f90**
+  └ In this file the function that is modified and needs analysis is ***full_diffu_ijk***.  
+  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
+  ```
+  cp Modified_Sod2d_Files/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
+  ```
+
+These version of the files include code that will store the input parameters and the result of the function call in a file until the program ends or user interrupt occurs. The files are stored in the ***Archive/Whitebox_Analysis/Data/{function_name}*** folder.  
+
+Now a simple exectution of SOD2D will be enough to collect the data needed for the analysis.
+
+(Note) More functions will be added in future versions.

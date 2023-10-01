@@ -7,7 +7,8 @@
         "varN",
         "time"
     ],
-    "program_end": 1000,
+    "repetitions": 1000,
+    "configs_to_check": 1000,
     "parameters": [
         {
             "name": "var1",

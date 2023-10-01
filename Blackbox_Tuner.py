@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import shutil
 import opentuner
 import pandas as pd
 from opentuner import Result
@@ -50,8 +51,8 @@ class GccFlagsTuner(MeasurementInterface):
         config_counter = 0
 
     # Counter for stopping execution.
-    nothing_to_do_counter = 0
-
+    repetitions_counter = 0
+    
     try:
         # Read Csv to continue where left off
         results_df = pd.read_csv(tuner_res_path + '/results.csv', index_col=0)
@@ -106,16 +107,23 @@ class GccFlagsTuner(MeasurementInterface):
 
     def run(self, desired_result, input, limit):
         cfg = desired_result.configuration.data
-
-        # Check if nothing to do counter reaches the desired amount end the execution
-        if self.nothing_to_do_counter == self.opentuner_info["program_end"]:
-            print("Nothing more to do. Bye!")
+        
+        # Check if all configs have been tested and end the execution
+        if self.config_counter == self.opentuner_info["configs_to_check"]:
+            shutil.move(self.tuner_res_path, "/Archive/Blackbox_Analysis/Modified_Folder")
+            print("Checked all requested configs. Bye!")
+            sys.exit()
+        
+        # Check if repetitions limit has been reached
+        if self.repetitions_counter == self.opentuner_info["repetitions"]:
+            shutil.move(self.tuner_res_path, "/Archive/Blackbox_Analysis/Modified_Folder")
+            print("Repetitions limit reached. Bye!")
             sys.exit()
 
         # Check if current config has been tested
         if not config_checks.check_existing_configs(self.config_counter, cfg, self.res_config_path):
             # Reinitialize end counter
-            self.nothing_to_do_counter = 0
+            self.repetitions_counter = 0
 
             # Setting environment variables
             self.set_env_variables(cfg)
@@ -219,7 +227,7 @@ class GccFlagsTuner(MeasurementInterface):
                     if parameter["name"] == i:
                         existing_cfg = existing_cfg.loc[existing_cfg[i] == cfg[i] * parameter["multiplier"]]
 
-            self.nothing_to_do_counter += 1
+            self.repetitions_counter += 1
 
             print("\n-----------------------------------------------------------\n")
 
