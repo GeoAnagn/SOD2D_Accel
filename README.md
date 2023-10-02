@@ -73,6 +73,8 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
   - **Whitebox_Analysis**
     - **Function_Call_Data_Generators**  
       └ Folder containing the modified SOD2D files for the function call input parameters and result outputs storing.
+    - **Function_Call_Data_Postprocessing**  
+      └ Folder containing the python files for the function call input parameters and result outputs postprocessing.
     - **Modified_Functions**  
       └ Folder containing the standalone versions of the SOD2D functions fot whitebox analysis.
     - **Original_Functions**  
@@ -235,9 +237,13 @@ A simple exectution of SOD2D will be enough to collect the data needed for the a
 
 **(Note)** More functions will be added in future versions.
 
+#### Data Analysis
+
+
+
 #### Per-function Executables
 
-In order to execute the Whitebox flow versions of the functions, to be analysed, must be made seperately of the whole SOD2D program and their respective fortran files. Precompiled executables containing only the needed function have been made for the **full_convec_ijk** and **full_diffu_ijk** in the ***/Whitebox_Analysis/Modified_Functions***  folder. More specifically the folder contains:
+In order to execute the Whitebox flow versions of the functions, to be analysed, must be made seperately of the whole SOD2D program and their respective fortran files. Precompiled executables containing only the needed function have been made for the **full_convec_ijk** and **full_diffu_ijk** in the ***Modified_Sod2d_Files/Whitebox_Analysis/Original_Functions*** and ***Modified_Sod2d_Files/Whitebox_Analysis/Modified_Functions*** folders. More specifically the folder Original_Functions contains the original versions of the functions and the Modified_Functions contains the modified versions of the functions. The files in the folders are:
 
 - full_convec_ijk.f90  
   The standalone version of the full_convec_ijk function of the file elem_convec.f90.
@@ -252,3 +258,8 @@ In order to execute the Whitebox flow versions of the functions, to be analysed,
   The script that compiles the standalone versions and creates the executables.
 
 All the executables generated are found in this folder. 
+
+
+
+
+
