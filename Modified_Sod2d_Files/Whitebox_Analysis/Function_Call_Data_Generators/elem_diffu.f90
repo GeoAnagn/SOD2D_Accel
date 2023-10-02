@@ -553,218 +553,233 @@ contains
 
       !---------------------------------------------------------------------------------------------------------------------------------------------------------
 
+      character(100) :: store_path
       character(100) :: file_num_char
+      character(100) :: max_calls_char
+      character(100) :: calls_step_char
       character(200) :: path
       character(300) :: filepath
       character(300) :: mkdir_command
 
       integer :: file_num
-      integer :: info
+      integer :: max_calls
+      integer :: calls_step
 
       ! Create appropriate folder for call data.
+      call get_environment_variable("store_path", store_path)
       call get_environment_variable("file_num", file_num_char)
+      call get_environment_variable("max_calls", max_calls_char)
+      call get_environment_variable("calls_step", calls_step_char)
+      READ(file_num_char, *) file_num
+      READ(max_calls_char, *) max_calls
+      READ(calls_step_char, *) calls_step
 
-      ! Create appropriate folder for call data.
-      call get_environment_variable("file_num", file_num_char)
-      path = '/home/apps/Examples/Clean_code/archive/data' // '/data_' // file_num_char
-      call StripSpaces_2(path)
-      mkdir_command = "mkdir " // path
-      call system(mkdir_command)
+      if ( file_num == max_calls ) then
+         EXIT           ! Exit the loop and program gracefully
+      end if
 
-      path = '/home/apps/Examples/Clean_code/archive/data' // '/data_' // file_num_char // '/elem_diffu'
-      call StripSpaces_2(path)
-      mkdir_command = "mkdir " // path
-      call system(mkdir_command)
+      if (file_num % calls_step == 0) then 
+         ! Create appropriate folder for call data.
+         call get_environment_variable("file_num", file_num_char)
+         path = store_path // '/Data_' // file_num_char
+         call StripSpaces_2(path)
+         mkdir_command = "mkdir " // path
+         call system(mkdir_command)
 
-      ! Write nelem variable to nelem.bin file.
-      filepath = path // '/nelem.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) nelem ! check
-      close(1)
-      
-      ! Write npoin variable to npoin.bin file.
-      filepath = path // '/npoin.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) npoin ! check
-      close(1)
+         path = store_path // '/Data_' // file_num_char // '/full_diffu_ijk'
+         call StripSpaces_2(path)
+         mkdir_command = "mkdir " // path
+         call system(mkdir_command)
 
-      ! Write nnode variable to nnode.bin file.
-      filepath = path // '/nnode.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) nnode ! check
-      close(1)
-      
-      ! Write ngaus variable to ngaus.bin file.
-      filepath = path // '/ngaus.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) ngaus ! check
-      close(1)
+         ! Write nelem variable to nelem.bin file.
+         filepath = path // '/nelem.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) nelem ! check
+         close(1)
+         
+         ! Write npoin variable to npoin.bin file.
+         filepath = path // '/npoin.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) npoin ! check
+         close(1)
 
-      ! Write ndime variable to ndime.bin file.
-      filepath = path // '/ndime.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) ndime ! check
-      close(1)
+         ! Write nnode variable to nnode.bin file.
+         filepath = path // '/nnode.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) nnode ! check
+         close(1)
+         
+         ! Write ngaus variable to ngaus.bin file.
+         filepath = path // '/ngaus.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) ngaus ! check
+         close(1)
 
-      ! Write porder variable to porder.bin file.
-      filepath = path // '/porder.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) porder ! check
-      close(1)
-      
-      ! Write connec variable to connec.bin file.
-      filepath = path // '/connec.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) connec
-      close(1)
+         ! Write ndime variable to ndime.bin file.
+         filepath = path // '/ndime.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) ndime ! check
+         close(1)
 
-      ! Write Ngp variable to Ngp.bin file.
-      filepath = path // '/Ngp.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Ngp! check
-      close(1)
+         ! Write porder variable to porder.bin file.
+         filepath = path // '/porder.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) porder ! check
+         close(1)
+         
+         ! Write connec variable to connec.bin file.
+         filepath = path // '/connec.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) connec
+         close(1)
 
-      ! Write dNgp variable to dNgp.bin file.
-      filepath = path // '/dNgp.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) dNgp ! check
-      close(1)
+         ! Write Ngp variable to Ngp.bin file.
+         filepath = path // '/Ngp.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Ngp! check
+         close(1)
 
-      ! Write He variable to He.bin file.
-      filepath = path // '/He.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) He ! check
-      close(1)
+         ! Write dNgp variable to dNgp.bin file.
+         filepath = path // '/dNgp.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) dNgp ! check
+         close(1)
 
-      ! Write xgp variable to xgp.bin file.
-      filepath = path // '/xgp.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) xgp ! check
-      close(1)
+         ! Write He variable to He.bin file.
+         filepath = path // '/He.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) He ! check
+         close(1)
 
-      ! Write dlxigp_ip variable to dlxigp_ip.bin file.
-      filepath = path // '/dlxigp_ip.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) dlxigp_ip ! check
-      close(1)
+         ! Write xgp variable to xgp.bin file.
+         filepath = path // '/xgp.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) xgp ! check
+         close(1)
 
-      ! Write gpvol variable to gpvol.bin file.
-      filepath = path // '/gpvol.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) gpvol ! check
-      close(1)
+         ! Write dlxigp_ip variable to dlxigp_ip.bin file.
+         filepath = path // '/dlxigp_ip.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) dlxigp_ip ! check
+         close(1)
 
-      ! Write atoIJK variable to atoIJK.bin file.
-      filepath = path // '/atoIJK.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) atoIJK ! check
-      close(1)
+         ! Write gpvol variable to gpvol.bin file.
+         filepath = path // '/gpvol.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) gpvol ! check
+         close(1)
 
-      ! Write invAtoIJK variable to invAtoIJK.bin file.
-      filepath = path // '/invAtoIJK.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) invAtoIJK! check
-      close(1)
+         ! Write atoIJK variable to atoIJK.bin file.
+         filepath = path // '/atoIJK.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) atoIJK ! check
+         close(1)
 
-      ! Write gmshAtoI variable to gmshAtoI.bin file.
-      filepath = path // '/gmshAtoI.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) gmshAtoI ! check
-      close(1)
+         ! Write invAtoIJK variable to invAtoIJK.bin file.
+         filepath = path // '/invAtoIJK.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) invAtoIJK! check
+         close(1)
 
-      ! Write gmshAtoJ variable to gmshAtoJ.bin file.
-      filepath = path // '/gmshAtoJ.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) gmshAtoJ ! check
-      close(1)
+         ! Write gmshAtoI variable to gmshAtoI.bin file.
+         filepath = path // '/gmshAtoI.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) gmshAtoI ! check
+         close(1)
 
-      ! Write gmshAtoK variable to gmshAtoK.bin file.
-      filepath = path // '/gmshAtoK.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) gmshAtoK ! check
-      close(1)
+         ! Write gmshAtoJ variable to gmshAtoJ.bin file.
+         filepath = path // '/gmshAtoJ.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) gmshAtoJ ! check
+         close(1)
 
-      ! Write Cp variable to Cp.bin file.
-      filepath = path // '/Cp.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Cp ! check
-      close(1)
+         ! Write gmshAtoK variable to gmshAtoK.bin file.
+         filepath = path // '/gmshAtoK.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) gmshAtoK ! check
+         close(1)
 
-      ! Write Pr variable to Pr.bin file.
-      filepath = path // '/Pr.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Pr ! check
-      close(1)
+         ! Write Cp variable to Cp.bin file.
+         filepath = path // '/Cp.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Cp ! check
+         close(1)
 
-      ! Write rho variable to rho.bin file.
-      filepath = path // '/rho.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) rho ! check
-      close(1)
+         ! Write Pr variable to Pr.bin file.
+         filepath = path // '/Pr.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Pr ! check
+         close(1)
 
-      ! Write u variable to u.bin file.
-      filepath = path // '/u.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) u ! check
-      close(1)
+         ! Write rho variable to rho.bin file.
+         filepath = path // '/rho.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) rho ! check
+         close(1)
 
-      ! Write Tem variable to Tem.bin file.
-      filepath = path // '/Tem.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Tem ! check
-      close(1)
+         ! Write u variable to u.bin file.
+         filepath = path // '/u.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) u ! check
+         close(1)
 
-      ! Write mu_e variable to mu_e.bin file.
-      filepath = path // '/mu_e.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) mu_e ! check
-      close(1)
+         ! Write Tem variable to Tem.bin file.
+         filepath = path // '/Tem.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Tem ! check
+         close(1)
 
-      ! Write mu_sgs variable to mu_sgs.bin file.
-      filepath = path // '/mu_sgs.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) mu_sgs ! check
-      close(1)
+         ! Write mu_e variable to mu_e.bin file.
+         filepath = path // '/mu_e.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) mu_e ! check
+         close(1)
 
-      ! Write Ml variable to Ml.bin file.
-      filepath = path // '/Ml.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Ml ! check
-      close(1)
+         ! Write mu_sgs variable to mu_sgs.bin file.
+         filepath = path // '/mu_sgs.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) mu_sgs ! check
+         close(1)
 
-      ! Write mu_fluid variable to mu_fluid.bin file.
-      filepath = path // '/mu_fluid.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) mu_fluid ! check
-      close(1)
+         ! Write Ml variable to Ml.bin file.
+         filepath = path // '/Ml.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Ml ! check
+         close(1)
 
+         ! Write mu_fluid variable to mu_fluid.bin file.
+         filepath = path // '/mu_fluid.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) mu_fluid ! check
+         close(1)
+      end if
       !---------------------------------------------------------------------------------------------------------------------------------------------------------
 
       call nvtxStartRange("Full diffusion")
@@ -928,28 +943,28 @@ contains
       call nvtxEndRange
       
       !---------------------------------------------------------------------------------------------------------------------------------------------------------
+      if ( file_num % calls_step == 0) then
+         ! Write Rmass variable to Rmass.bin file.
+         filepath = path // '/Rmass.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Rmass ! check
+         close(1)
 
-      ! Write Rmass variable to Rmass.bin file.
-      filepath = path // '/Rmass.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Rmass ! check
-      close(1)
+         ! Write Rmom variable to Rmom.bin file.
+         filepath = path // '/Rmom.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Rmom ! check
+         close(1)
 
-      ! Write Rmom variable to Rmom.bin file.
-      filepath = path // '/Rmom.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Rmom ! check
-      close(1)
-
-      ! Write Rener variable to Rener.bin file.
-      filepath = path // '/Rener.bin'
-      call StripSpaces_2(filepath)
-      open(1, file = filepath, form="unformatted")
-      write(1) Rener ! check
-      close(1)
-      
+         ! Write Rener variable to Rener.bin file.
+         filepath = path // '/Rener.bin'
+         call StripSpaces_2(filepath)
+         open(1, file = filepath, form="unformatted")
+         write(1) Rener ! check
+         close(1)
+      end if
       !---------------------------------------------------------------------------------------------------------------------------------------------------------
 
    end subroutine full_diffusion_ijk

@@ -222,6 +222,12 @@ These version of the files include code that will store the input parameters and
 
 Now in order for SOD2D to support the changes run:
 ```
+export store_path = {Path to store data}
+export max_calls  = {Number of function calls to store}
+export calls_step = {Step with which the calls will be stored}
+export file_num   = 0
+
+
 cd {sod2d_folder}/build & make clean & make
 ```
 
