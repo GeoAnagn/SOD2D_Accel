@@ -237,6 +237,18 @@ A simple exectution of SOD2D will be enough to collect the data needed for the a
 
 #### Per-function Executables
 
+In order to execute the Whitebox flow versions of the functions, to be analysed, must be made seperately of the whole SOD2D program and their respective fortran files. Precompiled executables containing only the needed function have been made for the **full_convec_ijk** and **full_diffu_ijk** in the ***/Whitebox_Analysis/Modified_Functions***  folder. More specifically the folder contains:
 
+- full_convec_ijk.f90  
+  The standalone version of the full_convec_ijk function of the file elem_convec.f90.
 
+- full_diffu_ijk.f90  
+  The standalone version of the full_diffu_ijk function of the file elem_diffu.f90.
 
+- mod_constants.f90 & mod_nvtx.f90  
+  The files needed for the compilation of the standalone versions.
+
+- build.sh  
+  The script that compiles the standalone versions and creates the executables.
+
+All the executables generated are found in this folder. 

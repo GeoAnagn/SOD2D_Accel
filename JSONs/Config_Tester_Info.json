@@ -1,0 +1,12 @@
+{
+    "sod2d_path": "path_of_sod2d_executable",
+    "example_path": "path_of_example_executable",
+    "gpu_ids": "0, ..., x",
+    "rank_num": "x",
+    "number_of_configs": 15,
+    "config_result_path": 
+        [
+            "/home/nzompaki/Documents/SOD2D_Accel/results_convec.csv",
+            "/home/nzompaki/Documents/SOD2D_Accel/results_diffu.csv"
+        ]
+}
