@@ -43,7 +43,6 @@ if __name__ == '__main__':
 
     # Create a DataFrame to store results
     results_df = pd.DataFrame(columns=['time', 'gang_num_fcijk', 'worker_num_fcijk', 'vector_num_fcijk', 'gang_num_fdijk', 'worker_num_fdijk', 'vector_num_fdijk'])
-
     # Iterate through combinations of configurations
     for i, convec_config in configurations[0].iterrows():
         gang_num_fcijk = str(int(convec_config['gang_num_fcijk']))

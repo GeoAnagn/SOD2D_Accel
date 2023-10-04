@@ -21,13 +21,16 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 - pip install pandas
 - pip install scikit-learn
 - pip install opentuner
+- pip install alive_progress
 
 ## Framework Folder Hierarchy
 ```bash
-├── Blackbox_Tuner.py
 ├── Blackbox_Original.py
-├── Whitebox_Tuner.py
+├── Blackbox_Tuner.py
+├── Whitebox_Data_Postprocessing.py
 ├── Whitebox_Original.py
+├── Whitebox_Tuner.py
+├── Configuration_Tester.py
 ├── JSONs
 │   ├── Blackbox_Info.json
 │   └── Whitebox_Info.json
@@ -42,6 +45,8 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
     └── Whitebox_Analysis
         ├── Function_Call_Data_Generators
         │   └── ...
+        ├── Function_Call_Data_Postprocessing
+        │   └── ...
         ├── Modified_Functions
         │   └── ...
         └── Original_Functions
@@ -52,15 +57,21 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
   └ Python file for collecting timing information on the original SOD2D execution.
 - **Blackbox_Tuner.py**  
   └ Main python file for the blackbox exploration of the modified SOD2D execution.
+- **Whitebox_Data_Postprocessing.py**  
+  └ Python file for postprocessing the function input and output storing.
 - **Whitebox_Original.py**  
   └ Python file for executing SOD2D with function input and output storing.
 - **Whitebox_Tuner.py**  
   └ Main python file for the whitebox exploration of the modified SOD2D execution.
+- **Configuration_Tester.py**  
+  └ Python file for testing the configurations of the SOD2D exploration results.
 - **JSONs**
   - **Original_Info.json**  
     └ Info file for SOD2D execution. (Detailed explanation in usage section.)
   - **Blackbox_Info.json**  
     └ Blackbox info file for parameter setup. (Detailed explanation in usage section.)
+  - **Whitebox_Data.json**  
+    └ Whitebox data storing file for parameter setup. (Detailed explanation in usage section.)
   - **Whitebox_Info.json**  
     └ Whitebox info file for parameter setup. (Detailed explanation in usage section.)
 - **Example**  
@@ -140,28 +151,28 @@ cd {sod2d_folder}/build & make clean & make
 ```json
 {   
     "sod2d_path" : "path_of_sod2d_executable",
-    "gpu_ids": "0, ..., x",
-    "rank_num": "x",
+    "gpu_ids": [0, ..., No.GPUs],
+    "rank_num": No.GPUs,
     "dataframe_columns": ["var1",
                           ...,
                           "varN", 
                           "time"],
-    "repetitions": 1000,
-    "configs_to_check": 1000,
+    "repetitions": No.Repetitions,
+    "configs_to_check": No.Configurations,
     "parameters": [
         {
             "name": "var1",
-            "min" : 1,
-            "max" : 1000,
-            "multiplier": 512,
+            "min" : Min_Value,
+            "max" : Max_Value,
+            "multiplier": Value_Multiplier,
             "type": "integer"
         },
         ...,
         {
             "name": "varN",
-            "min" : 1,
-            "max" : 32,
-            "multiplier": 32,
+            "min" : Min_Value,
+            "max" : Max_Value,
+            "multiplier": Value_Multiplier,
             "type": "integer"
         }
     ]    
@@ -220,26 +231,60 @@ In order for the exploration to happen we need to move our modified SOD2D files 
   cp Modified_Sod2d_Files/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 
-These version of the files include code that will store the input parameters and the result of the function call in a file until the program ends or user interrupt occurs. The files are stored in the ***Archive/Whitebox_Analysis/Data/{function_name}*** folder.  
+These version of the files include code that will store the input parameters and the result of the function call in a file until the program ends or user interrupt occurs. The files are stored in the ***Archive/Whitebox_Analysis/Data/Data_{Func_Call_IDX}/{function_name}*** folder.  
 
 Now in order for SOD2D to support the changes run:
 ```
-export store_path = {Path to store data}
-export max_calls  = {Number of function calls to store}
-export calls_step = {Step with which the calls will be stored}
-export file_num   = 0
-
-
 cd {sod2d_folder}/build & make clean & make
 ```
 
-A simple exectution of SOD2D will be enough to collect the data needed for the analysis.
-
 **(Note)** More functions will be added in future versions.
+
+#### Data Collection
+
+In order to collect the input and output data of the functions that are needed to be analysed, the ***Whitebox_Data_Postproccesing.py*** is used. As a first step it executes the SOD2D with the modified files and collects the data. Some data collection parameters are defined in the ***JSONs/Whitebox_Data.json*** file and are explained bellow.
+
+```json
+{
+    "sod2d_path": "path_of_sod2d_executable",
+    "example_path": "Example",
+    "gpu_ids": [0, ..., No.GPUs],
+    "rank_num": No.GPUs,
+
+    "store_path": "Archive/Whitebox_Analysis/Data",
+    "start_num" : 0,
+    "max_num" : No.MaxCalls,
+    "step" : No.Step,
+    "cluster_num" : No.Cluster
+}
+```
+
+- **sod2d_path**    
+  └ Path of the SOD2D executable.
+- **example_path**  
+  └ Path of the example executable. Default is ***Example***.
+- **gpu_ids**  
+  └ GPU ids to be used for the execution. (Separated by commas)
+- **rank_num**  
+  └ Rank number to be used for the execution.
+- **store_path**  
+  └ Path of the data storage. Default is ***Archive/Whitebox_Analysis/Data***.
+- **start_num**  
+  └ Number of the first function call to be stored.
+- **max_num**  
+  └ Maximum number of function calls to be stored.
+- **step**  
+  └ Number of function calls to be skipped between each stored function call.
+- **cluster_num**  
+  └ Number of clusters to be created for each function.
 
 #### Data Analysis
 
+Due to high number of function calls that are stored, the data analysis is seperated in two parts. The first part is the data postprocessing and the second part is the data analysis. The data postprocessing is done in order to create a dataframe that will be used for the analysis. The data analysis is done in order to find the most representative distinct function calls.
 
+##### Data Postprocessing
+
+The data postprocessing is also done by the ***Whitebox_Data_Postprocessing.py*** python file. The file as a first step creates **{function_name}.csv** files that contain the data of each functions' function calls. These files are stored at ***Archive/Whitebox_Analysis/Data*** folder. Next these files are loaded and by applying a clustering algortihm the function calls are seperated in clusters based on the information they take as input and output. The number of clusters created is defined in the ***Whitebox_Data.json***. Lastly the function call closest to the centroid of each cluster is selected and the a list of the most representative function calls is created for each function and saved to *.json* file for later use. The *.json* file is stored at ***Archive/Whitebox_Analysis/Data*** folder.  
 
 #### Per-function Executables
 

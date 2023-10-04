@@ -1,19 +1,9 @@
-import os
-import math
 import struct
 import numpy as np
-import pandas as pd
 
 def data_read(path: str, folder_id: int, function_name: str, variable_name: str):
-    with open(path + '/data_' + str(folder_id) + '/' + function_name + '/' + variable_name + '.bin', 'rb') as data_file:
+    with open(path + '/Data_' + str(folder_id) + '/' + function_name + '/' + variable_name + '.bin', 'rb') as data_file:
         return data_file.read()
-    
-def initialize_shape_variables(folder_id: int, function_name: str) -> list:
-    variables = []
-    for variable_name in ['nelem', 'npoin', 'nnode', 'ngaus', 'porder', 'ndime']:
-        variables.append(struct.unpack('<iii', data_read(folder_id, function_name, variable_name))[1])
-        
-    return variables 
 
 def array_type(arr_shape: tuple, arr_type: str):
     # Float Type Array with Byte Size 4
