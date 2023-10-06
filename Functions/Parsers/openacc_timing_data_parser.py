@@ -87,5 +87,5 @@ def parser(results_folder):
         temp_df = pd.DataFrame([timing_dict])
         timing_df = pd.concat([timing_df, temp_df], ignore_index=True)
 
-    # Save info found to a .csv file.
-    timing_df.to_csv(results_folder + '/openacc_timing.csv', index=False)
+    # Save info found to a .csv file.\
+    timing_df.to_excel(results_folder + '/openacc_timing.xlsx', index=False)

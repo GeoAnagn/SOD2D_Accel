@@ -151,8 +151,8 @@ cd {sod2d_folder}/build & make clean & make
 ```json
 {   
     "sod2d_path" : "path_of_sod2d_executable",
-    "gpu_ids": [0, ..., No.GPUs],
-    "rank_num": No.GPUs,
+    "gpu_ids": "0, ..., No.GPUs",
+    "rank_num": "No.GPUs",
     "dataframe_columns": ["var1",
                           ...,
                           "varN", 
@@ -248,8 +248,8 @@ In order to collect the input and output data of the functions that are needed t
 {
     "sod2d_path": "path_of_sod2d_executable",
     "example_path": "Example",
-    "gpu_ids": [0, ..., No.GPUs],
-    "rank_num": No.GPUs,
+    "gpu_ids": "0, ..., No.GPUs",
+    "rank_num": "No.GPUs",
 
     "store_path": "Archive/Whitebox_Analysis/Data",
     "start_num" : 0,
@@ -284,11 +284,25 @@ Due to high number of function calls that are stored, the data analysis is seper
 
 ##### Data Postprocessing
 
-The data postprocessing is also done by the ***Whitebox_Data_Postprocessing.py*** python file. The file as a first step creates **{function_name}.csv** files that contain the data of each functions' function calls. These files are stored at ***Archive/Whitebox_Analysis/Data*** folder. Next these files are loaded and by applying a clustering algortihm the function calls are seperated in clusters based on the information they take as input and output. The number of clusters created is defined in the ***Whitebox_Data.json***. Lastly the function call closest to the centroid of each cluster is selected and the a list of the most representative function calls is created for each function and saved to *.json* file for later use. The *.json* file is stored at ***Archive/Whitebox_Analysis/Data*** folder.  
+The data postprocessing is also done by the ***Whitebox_Data_Postprocessing.py*** python file. The file as a first step creates **{function_name}.csv** files that contain the data of each functions' function calls. These files are stored at ***Archive/Whitebox_Analysis/Data*** folder. 
+
+##### Data Clustering
+
+Next these files are loaded and by applying a clustering algortihm the function calls are seperated in clusters based on the information they take as input and output. The number of clusters created is defined in the ***Whitebox_Data.json***. 
+
+Lastly the function call closest to the centroid of each cluster is selected and the a list of the most representative function calls is created for each function and saved to *.json* file for later use. The *.json* file is stored at ***Archive/Whitebox_Analysis/Data*** folder.  
 
 #### Per-function Executables
 
-In order to execute the Whitebox flow versions of the functions, to be analysed, must be made seperately of the whole SOD2D program and their respective fortran files. Precompiled executables containing only the needed function have been made for the **full_convec_ijk** and **full_diffu_ijk** in the ***Modified_Sod2d_Files/Whitebox_Analysis/Original_Functions*** and ***Modified_Sod2d_Files/Whitebox_Analysis/Modified_Functions*** folders. More specifically the folder Original_Functions contains the original versions of the functions and the Modified_Functions contains the modified versions of the functions. The files in the folders are:
+In order to execute the Whitebox flow versions of the functions, to be analysed, must be made seperately of the whole SOD2D program and their respective fortran files. 
+
+Precompiled executables containing only the needed function have been made for the **full_convec_ijk** and **full_diffu_ijk**. 
+
+These files are located in the:
+- ***Modified_Sod2d_Files/Whitebox_Analysis/Original_Functions*** and 
+- ***Modified_Sod2d_Files/Whitebox_Analysis/Modified_Functions*** folders. 
+
+More specifically the folder Original_Functions contains the original versions of the functions and the Modified_Functions contains the modified versions of the functions. The files in the folders are:
 
 - full_convec_ijk.f90  
   The standalone version of the full_convec_ijk function of the file elem_convec.f90.
@@ -302,7 +316,91 @@ In order to execute the Whitebox flow versions of the functions, to be analysed,
 - build.sh  
   The script that compiles the standalone versions and creates the executables.
 
-All the executables generated are found in this folder. 
+All the executables generated are found in these folders. 
+
+#### Execution
+
+In order to execute the Whitebox flow versions of the functions, to be analysed, the ***Whitebox_Original.py*** and ***Whitebox_Tuner.py*** python files are used. The ***Whitebox_Original.py*** file executes the original versions of the functions and the ***Whitebox_Tuner.py*** file executes the modified versions of the functions.
+
+##### JSON Explanation
+```json
+{   
+    "data_path" : "Archive/Whitebox_Analysis/Data",
+    "func_path" : "Modified_Sod2d_Files/Whitebox_Analysis",
+    "func_ver" :  "/{function_version}_Functions",
+    "func_exec" : "/{function_name_executable}",
+    "func_name" : "{function_name}",
+
+    "gpu_ids": "0, ..., No.GPUs",
+    "rank_num": "No.GPUs",
+    "dataframe_columns": ["var1",
+                          ...,
+                          "varN", 
+                          "time"],
+    "repetitions": No.Repetitions,
+    "configs_to_check": No.Configurations,
+    "parameters": [
+        {
+            "name": "var1",
+            "min" : Min_Value,
+            "max" : Max_Value,
+            "multiplier": Value_Multiplier,
+            "type": "integer"
+        },
+        ...,
+        {
+            "name": "varN",
+            "min" : Min_Value,
+            "max" : Max_Value,
+            "multiplier": Value_Multiplier,
+            "type": "integer"
+        }
+    ],
+    "func_call_idx": []
+}
+```
+
+- **data_path**  
+  └ Path of the data storage. Default is ***Archive/Whitebox_Analysis/Data***.
+- **func_path**  
+  └ Path of the folder containing the function executables. Default is ***Modified_Sod2d_Files/Whitebox_Analysis***.
+- **func_ver**  
+  └ Version of the function to be executed. (***Original*** or ***Modified***)
+- **func_exec**    
+  └ Name of the function executable.
+- **func_name**  
+  └ Name of the function.
+- **gpu_ids**  
+  └ GPU ids to be used for the execution. (Separated by commas)
+- **rank_num**  
+  └ Rank number to be used for the execution.
+- **dataframe_columns**  
+  └ Columns of the dataframe that will be created. (Should include all the parameters and the time column.)
+- **repetitions**  
+  └ Number of consecutive executions that have configurations already checked. (If reached end exploration.)
+- **configs_to_check**  
+  └ Number of configurations to be checked in each exploration. (Should be less than the total number of configurations.)
+- **parameters**  
+  - **name**  
+    └ Name of the parameter.
+  - **min**  
+    └ Minimum value of the parameter.
+  - **max**  
+    └ Maximum value of the parameter.
+  - **multiplier**  
+    └ Multiplier of the parameter. (Used for integer parameters.)
+  - **type**  
+    └ Type of the parameter. (integer or float)
+- **func_call_idx**  
+  └ List of the function call indices to be executed. This must be filled with the appropriate results found in ***Archive/Whitebox_Analysis/Data/representative_calls.json***.
+
+##### Original Execution
+
+More specifically the ***Whitebox_Original.py*** file executes the original versions of the function needed using the representative stored input parameters and the results of the function calls and collects timing data. The timing data  are stored in the ***Archive/Whitebox_Analysis/Example/{Function_Name}/Original_Results/*** folder.
+
+
+
+##### Tuner Execution
 
 
 

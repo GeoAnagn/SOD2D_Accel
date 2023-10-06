@@ -5,6 +5,13 @@ from Functions import file_management
 from Functions.Parsers import openacc_timing_data_parser
 
 if __name__ == '__main__':
+    # Enviroment variable for OpenACC timing analysis.
+    os.environ['PGI_ACC_TIME'] = '1'
+
+    # Set id orded based on GPU BUS ID. 
+    # Run nvidia-smi to see how gpus will be ordered and pick your poison.
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    
     # Read json file
     json_path = "JSONs/Original_Info.json"
     

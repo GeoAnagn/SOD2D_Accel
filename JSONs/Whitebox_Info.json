@@ -1,12 +1,14 @@
 {   
-    "data_path" : "/home/apps/Examples/Clean_code/Archive/Whitebox_Analysis/Data/Cube_20",
-    "func_path" : "/home/apps/Examples/Clean_code/Modified_Sod2d_Files/Whitebox_Analysis",
+    "data_path" : "Archive/Whitebox_Analysis/Data",
+    "func_path" : "Modified_Sod2d_Files/Whitebox_Analysis",
     "func_ver" :  "/Modified_Functions",
     "func_exec" : "/run_elem_diffu",
     "func_name" : "elem_diffu",
-
     "gpu_ids": "0, ..., x",
     "rank_num": "x",
+    "func_call_idx": [],
+
+
     "dataframe_columns": [
         "var1",
         "varN",
@@ -28,7 +30,5 @@
             "multiplier": 32,
             "type": "integer"
         }
-    ],
-
-    "func_call_idx": []
+    ]
 }
