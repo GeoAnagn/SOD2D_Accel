@@ -327,36 +327,36 @@ In order to execute the Whitebox flow versions of the functions, to be analysed,
 {   
     "data_path" : "Archive/Whitebox_Analysis/Data",
     "func_path" : "Modified_Sod2d_Files/Whitebox_Analysis",
-    "func_ver" :  "/{function_version}_Functions",
-    "func_exec" : "/{function_name_executable}",
-    "func_name" : "{function_name}",
+    "func_ver" :  "/Modified_Functions",
+    "func_exec" : "/run_elem_diffu",
+    "func_name" : "elem_diffu",
+    "gpu_ids": "0, ..., x",
+    "rank_num": "x",
+    "func_call_idx": [],
 
-    "gpu_ids": "0, ..., No.GPUs",
-    "rank_num": "No.GPUs",
-    "dataframe_columns": ["var1",
-                          ...,
-                          "varN", 
-                          "time"],
-    "repetitions": No.Repetitions,
-    "configs_to_check": No.Configurations,
+
+    "dataframe_columns": [
+        "var1",
+        "varN",
+        "time"
+    ],
+    "program_end": 1000,
     "parameters": [
         {
             "name": "var1",
-            "min" : Min_Value,
-            "max" : Max_Value,
-            "multiplier": Value_Multiplier,
+            "min": 1,
+            "max": 1000,
+            "multiplier": 512,
             "type": "integer"
         },
-        ...,
         {
             "name": "varN",
-            "min" : Min_Value,
-            "max" : Max_Value,
-            "multiplier": Value_Multiplier,
+            "min": 1,
+            "max": 32,
+            "multiplier": 32,
             "type": "integer"
         }
-    ],
-    "func_call_idx": []
+    ]
 }
 ```
 
@@ -396,12 +396,11 @@ In order to execute the Whitebox flow versions of the functions, to be analysed,
 
 ##### Original Execution
 
-More specifically the ***Whitebox_Original.py*** file executes the original versions of the function needed using the representative stored input parameters and the results of the function calls and collects timing data. The timing data  are stored in the ***Archive/Whitebox_Analysis/Example/{Function_Name}/Original_Results/*** folder.
-
-
+More specifically the ***Whitebox_Original.py*** file executes the original versions of the function needed using the representative stored input parameters and the results of the function calls and collects timing data. The timing data are stored in the ***Archive/Whitebox_Analysis/Original_Results/{Function Name}*** folder.
 
 ##### Tuner Execution
 
+More specifically the ***Whitebox_Tuner.py*** file executes the modified versions of the function needed using the representative stored input parameters and the results of the function calls and collects timing data. The timing data are stored in the ***Archive/Whitebox_Analysis/Tuner_Results/{Function Name}*** folder together with the configuration info.
 
 
 

@@ -8,22 +8,7 @@ def create_clusters(store_path: str, function_names: list, num_clusters: int = 3
     centroinds = {}
     with alive_bar(len(function_names)) as bar:
         for name in function_names:
-            dataset = pd.read_csv(f"{store_path}/{name}.csv")
-
-            # Min-Max Normalization
-            # min_max_norm_dataset = dataset.copy(deep=True)
-            # for column in min_max_norm_dataset.columns:
-            #     min_max_norm_dataset[column] = (min_max_norm_dataset[column] - min_max_norm_dataset[column].min()) / (min_max_norm_dataset[column].max() - min_max_norm_dataset[column].min())    
-
-            # Mean-Normalization
-            # mean_norm_dataset = dataset.copy(deep=True)
-            # for column in min_max_norm_dataset.columns:
-            #     mean_norm_dataset[column] = (mean_norm_dataset[column]-mean_norm_dataset[column].mean())/mean_norm_dataset[column].std()
-
-            # Z-Score Normalization
-            # z_score_norm_dataset = dataset.copy(deep=True)
-            # for column in z_score_norm_dataset.columns:
-            #   z_score_norm_dataset[column] = (z_score_norm_dataset[column] - z_score_norm_dataset[column].mean()) / z_score_norm_dataset[column].std()    
+            dataset = pd.read_excel(f'{store_path}/{name}.xlsx')
 
             # Max Normalization
             max_norm_dataset = dataset.copy(deep=True)
@@ -45,5 +30,5 @@ def create_clusters(store_path: str, function_names: list, num_clusters: int = 3
             centroinds[name] = closest
             bar()
 
-    with open(f"{store_path}/representative_calls.json", "w") as outfile:
+    with open(f'{store_path}/representative_calls.json', 'w') as outfile:
         json.dump(centroinds, outfile)

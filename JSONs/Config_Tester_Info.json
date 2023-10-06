@@ -1,6 +1,6 @@
 {
     "sod2d_path": "path_of_sod2d_executable",
-    "example_path": "path_of_example_executable",
+    "example_path": "Example",
     "gpu_ids": "0, ..., x",
     "rank_num": "x",
     "number_of_configs": 15,

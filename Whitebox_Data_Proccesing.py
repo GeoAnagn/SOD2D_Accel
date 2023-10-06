@@ -4,7 +4,7 @@ from Modified_Sod2d_Files.Whitebox_Analysis.Function_Call_Data_Postprocessing im
 
 if __name__ == '__main__':
     # Set GPU ordering based on PCI_BUS_ID
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 
     # Load config file
     with open('JSONs/Whitebox_Data.json') as config_file:
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     rank_num = config['rank_num']
 
     # Set the desired GPU(s) based on configuration
-    os.environ["CUDA_VISIBLE_DEVICES"] = config['gpu_ids']
+    os.environ['CUDA_VISIBLE_DEVICES'] = config['gpu_ids']
 
     # Load config for storing
     store_path = config['store_path']
@@ -31,12 +31,13 @@ if __name__ == '__main__':
     os.environ['calls_step'] = str(step)
 
     # Execute Sod2d
-    print("Executing Sod2d Application")
-    execute_cmd = 'cd '+ example_path + ' &&'
-    execute_cmd += ' mpirun --allow-run-as-root --mca coll ^hcoll'
-    execute_cmd += ' -np ' + rank_num + ' '
-    execute_cmd += sod2d_path 
+    print('Executing Sod2d Application')
+    execute_cmd = f'cd {example_path} && '
+    execute_cmd += 'mpirun --allow-run-as-root --mca coll ^hcoll'
+    execute_cmd += f' -np {rank_num} '
+    execute_cmd += sod2d_path
     os.system(execute_cmd)
+    os.system('cd ..')
 
     print('Analysing Data Collected and Creating CSVs...')
     function_names = Postproccesing.create_csvs(store_path, start_num, end_num, step)

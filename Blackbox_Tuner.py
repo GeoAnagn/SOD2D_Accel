@@ -13,23 +13,23 @@ from Functions.Parsers import openacc_timing_data_parser
 # TODO: Change prints to logging.info
 
 class GccFlagsTuner(MeasurementInterface):
-    # Enviroment variable for OpenACC timing analysis.
+    # Environment variable for OpenACC timing analysis.
     os.environ['PGI_ACC_TIME'] = '1'
 
-    # Set id orded based on GPU BUS ID. 
-    # Run nvidia-smi to see how gpus will be ordered and pick your poison.
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    # Set id ordered based on GPU BUS ID. 
+    # Run nvidia-smi to see how GPUs will be ordered and pick your poison.
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 
     # Set Json File Path.
-    json_path = "JSONs\Blackbox_Info.json"
+    json_path = 'JSONs\Blackbox_Info.json'
     opentuner_info = None
 
     # Read opentuner user parameters.
     with open(json_path, 'r') as f:
         opentuner_info = json.load(f)
 
-    # Set appropriate gpu id.
-    os.environ["CUDA_VISIBLE_DEVICES"] = opentuner_info['gpu_ids']
+    # Set appropriate GPU id.
+    os.environ['CUDA_VISIBLE_DEVICES'] = opentuner_info['gpu_ids']
 
     # Get all paths to be used.
     paths = file_management.path_definitions()
@@ -44,7 +44,7 @@ class GccFlagsTuner(MeasurementInterface):
 
     # Counter for how many configs have been tested.
     config_counter = 0
-    # Change the confing counter to match the number of configs already tested.
+    # Change the config counter to match the number of configs already tested.
     try:
         config_counter += len(next(os.walk(res_config_path))[1])
     except:
@@ -120,9 +120,9 @@ class GccFlagsTuner(MeasurementInterface):
             print("Repetitions limit reached. Bye!")
             sys.exit()
 
-        # Check if current config has been tested
+        # Check if the current config has been tested
         if not config_checks.check_existing_configs(self.config_counter, cfg, self.res_config_path):
-            # Reinitialize end counter
+            # Reinitialize the end counter
             self.repetitions_counter = 0
 
             # Setting environment variables
@@ -137,21 +137,21 @@ class GccFlagsTuner(MeasurementInterface):
             execute_result = self.call_program(execute_cmd)
             try:
                 assert execute_result['returncode'] == 0
-                print("Succesful execution of Sod2d Application")
+                print("Successful execution of Sod2d Application")
 
-                # Create new config results folder
+                # Create a new config results folder
                 results_folder = file_management.create_results_folder(self.res_config_path, self.config_counter)
 
-                # Save config file
-                print('Saving current config file at ' + results_folder + '/config.json')
+                # Save the config file
+                print('Saving the current config file at ' + results_folder + '/config.json')
                 self.manipulator().save_to_file(cfg, results_folder +'/config.json')
 
-                # Save results file
+                # Save the results file
                 print('Saving results file at ' + results_folder + '/results.json')
                 with open(results_folder + '/results.json', "w") as results:
                     json.dump(execute_result['time'], results)
 
-                # Move results to appropriate folder
+                # Move results to the appropriate folder
                 file_management.move_results(self.example_path, results_folder)
 
                 # Parse OpenAcc Timing Analysis
@@ -167,7 +167,7 @@ class GccFlagsTuner(MeasurementInterface):
                 # Remove .h5 files
                 file_management.rm_files(results_folder)
 
-                # Merge all results to one dictionary
+                # Merge all results into one dictionary
                 results_dict = self.result_dict(execute_result, cfg, 0)
 
                 # Append it to the results dataframe
@@ -186,11 +186,11 @@ class GccFlagsTuner(MeasurementInterface):
             except AssertionError:
                 print("Execution of Sod2d Application Failed.")
 
-                 # Create new config results folder
+                 # Create a new config results folder
                 results_folder = file_management.create_results_folder(self.res_config_path, self.config_counter)
 
                 # Save config file
-                print('Saving current config file at ' + results_folder +'/config.json')
+                print('Saving the current config file at ' + results_folder +'/config.json')
                 self.manipulator().save_to_file(cfg, results_folder +'/config.json')
 
                 # Save error file
@@ -198,13 +198,13 @@ class GccFlagsTuner(MeasurementInterface):
                 error_file.write(execute_result['stderr'])
                 error_file.close()
 
-                # Move results to appropriate folder
+                # Move results to the appropriate folder
                 file_management.move_results(self.example_path, results_folder)
 
                 # Remove .h5 files
                 file_management.rm_files(results_folder)
 
-                # Merge all results to one dictionary
+                # Merge all results into one dictionary
                 results_dict = self.result_dict(execute_result, cfg, 1)
 
                 # Append it to the results dataframe
@@ -236,4 +236,3 @@ class GccFlagsTuner(MeasurementInterface):
 if __name__ == '__main__':
     argparser = opentuner.default_argparser()
     GccFlagsTuner.main(argparser.parse_args())
-  

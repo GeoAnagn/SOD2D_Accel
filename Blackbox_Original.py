@@ -5,15 +5,15 @@ from Functions import file_management
 from Functions.Parsers import openacc_timing_data_parser
 
 if __name__ == '__main__':
-    # Enviroment variable for OpenACC timing analysis.
+    # Environment variable for OpenACC timing analysis.
     os.environ['PGI_ACC_TIME'] = '1'
 
-    # Set id orded based on GPU BUS ID. 
-    # Run nvidia-smi to see how gpus will be ordered and pick your poison.
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    # Set id ordered based on GPU BUS ID. 
+    # Run nvidia-smi to see how GPUs will be ordered and pick your poison.
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
     
-    # Read json file
-    json_path = "JSONs/Original_Info.json"
+    # Read JSON file
+    json_path = 'JSONs/Original_Info.json'
     
     sod2d_info = None
 
@@ -21,15 +21,15 @@ if __name__ == '__main__':
     with open(json_path, 'r') as f:
         sod2d_info = json.load(f)
     
-    # Set appropriate gpu id.
-    os.environ["CUDA_VISIBLE_DEVICES"] = sod2d_info['gpu_ids']
+    # Set appropriate GPU id.
+    os.environ['CUDA_VISIBLE_DEVICES'] = sod2d_info['gpu_ids']
     
-    example_path = sod2d_info["example_path"]
-    rank_num = sod2d_info["rank_num"]
-    sod2d_path = sod2d_info["sod2d_path"]
+    example_path = sod2d_info['example_path']
+    rank_num = sod2d_info['rank_num']
+    sod2d_path = sod2d_info['sod2d_path']
     
     # Execute Sod2d
-    print("Executing Sod2d Application")
+    print('Executing Sod2d Application')
     execute_cmd = 'cd '+ example_path + ' &&'
     execute_cmd += 'mpirun --allow-run-as-root --mca coll ^hcoll'
     execute_cmd += ' -np ' + rank_num + ' '
@@ -38,24 +38,25 @@ if __name__ == '__main__':
     start_time = time.time()
     os.system(execute_cmd)
     end_time = time.time()
-    
+    os.system('cd ..')
+
     results_folder = 'Archive/Blackbox_Analysis/Original_Example'
     
     if not os.path.exists(results_folder):
-        print("Creating folder: " + results_folder)
+        print('Creating folder: ' + results_folder)
         # If it doesn't exist, create the folder and any intermediate directories
         os.makedirs(results_folder)
     
-    time_data = {"time": end_time - start_time}
+    time_data = {'time': end_time - start_time}
     json_filename = results_folder + '/time.json'
     
-    with open(json_filename, "w") as json_file:
+    with open(json_filename, 'w') as json_file:
         json.dump(time_data, json_file)
     
-    print("Moving results at: " + results_folder)
-    # Move results to appropriate folder
+    print('Moving results at: ' + results_folder)
+    # Move results to the appropriate folder
     file_management.move_results(example_path, results_folder)
 
-    print("Parsing OpenAcc Timing Analysis")
+    print('Parsing OpenAcc Timing Analysis')
     # Parse OpenAcc Timing Analysis
     openacc_timing_data_parser.parser(results_folder)

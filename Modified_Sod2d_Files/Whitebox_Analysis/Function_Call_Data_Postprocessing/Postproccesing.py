@@ -27,9 +27,9 @@ def create_csvs(store_path: str, start_num: int, end_num: int, step: int):
 
     # Initialize dataframe
     full_convec_ijk_df = pd.DataFrame(columns = fcijk_array_names)
-    full_convec_ijk_df.to_csv(store_path + '/full_convec_ijk.csv')
+    full_convec_ijk_df.to_excel(store_path + '/full_convec_ijk.xlsx')
 
-    print(f"Loading Data for {function_name} function and saving results to {store_path}/full_convec_ijk.csv")
+    print(f"Loading Data for {function_name} function and saving results to {store_path}/full_convec_ijk.xlsx")
     with alive_bar(int(end_num/step)) as bar:
         # Load arrays and save to dataframe
         for folder_idx in range(0, end_num+1, step):
@@ -63,7 +63,7 @@ def create_csvs(store_path: str, start_num: int, end_num: int, step: int):
 
             info_df = pd.DataFrame([info_dict])
             full_convec_ijk_df = pd.concat([full_convec_ijk_df, info_df], ignore_index=True)
-            full_convec_ijk_df.to_csv(store_path + '/full_convec_ijk.csv', index=False)
+            full_convec_ijk_df.to_excel(store_path + '/full_convec_ijk.xlsx', index=False)
             bar()
 
     print(f'Finished loading data for {function_name} function.\n')
@@ -82,9 +82,9 @@ def create_csvs(store_path: str, start_num: int, end_num: int, step: int):
 
     # Initialize dataframe
     full_diffu_ijk_df = pd.DataFrame(columns = fdijk_array_names)
-    full_diffu_ijk_df.to_csv(store_path + '/full_diffu_ijk.csv')
+    full_diffu_ijk_df.to_excel(store_path + '/full_diffu_ijk.xlsx')
 
-    print(f"Loading Data for {function_name} function and saving results to {store_path}/full_diffu_ijk.csv")
+    print(f"Loading Data for {function_name} function and saving results to {store_path}/full_diffu_ijk.xlsx")
     with alive_bar(int(end_num/step)) as bar:
         # Load arrays and save to dataframe
         for folder_idx in range(0, end_num+1, step):
@@ -125,7 +125,7 @@ def create_csvs(store_path: str, start_num: int, end_num: int, step: int):
 
             info_df = pd.DataFrame([info_dict])
             full_diffu_ijk_df = pd.concat([full_diffu_ijk_df, info_df], ignore_index=True)
-            full_diffu_ijk_df.to_csv(store_path + '/full_diffu_ijk.csv', index=False)
+            full_diffu_ijk_df.to_excel(store_path + '/full_diffu_ijk.xlsx', index=False)
             bar()
             
     print(f'Finished loading data for {function_name} function.')
