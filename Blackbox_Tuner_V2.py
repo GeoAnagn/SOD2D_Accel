@@ -5,8 +5,8 @@ import shutil
 import logging
 import opentuner
 import pandas as pd
-from Functions import file_management, config_checks
-from Functions.Parsers import openacc_timing_data_parser
+from Functions import file_management_V2, config_checks_V2
+from Functions.Parsers import openacc_timing_data_parser_V2
 from opentuner import Result, IntegerParameter, ConfigurationManipulator, MeasurementInterface
 
 class GccFlagsTuner(MeasurementInterface):
@@ -31,7 +31,7 @@ class GccFlagsTuner(MeasurementInterface):
 
     # Set up paths for various directories
     def setup_paths(self):
-        paths = file_management.path_definitions()  # Get directory paths from file_management
+        paths = file_management_V2.path_definitions()  # Get directory paths from file_management
         self.example_path = paths[0]  # Path to the example directory
         self.og_res_path = paths[1]  # Path to the original results directory
         self.tuner_res_path = paths[2]  # Path to the tuner results directory
@@ -84,7 +84,7 @@ class GccFlagsTuner(MeasurementInterface):
             self.finish_execution()
             sys.exit()
 
-        if not config_checks.check_existing_configs(self.config_counter, cfg, self.opentuner_info['res_config_path']):
+        if not config_checks_V2.check_existing_configs(self.config_counter, cfg, self.res_config_path):
             self.repetitions_counter = 0
             self.set_env_variables(cfg)  # Set environment variables for the current configuration
 
@@ -110,7 +110,7 @@ class GccFlagsTuner(MeasurementInterface):
     # Handle successful execution by saving results and moving files
     def handle_successful_execution(self, cfg, execute_result):
         os.system('cd ..')
-        results_folder = file_management.create_results_folder(self.res_config_path, self.config_counter)
+        results_folder = file_management_V2.create_results_folder(self.res_config_path, self.config_counter)
         
         self.logger.info(f'Saving current config file at {results_folder}/config.json')
         self.manipulator().save_to_file(cfg, f'{results_folder}/config.json')
@@ -119,8 +119,8 @@ class GccFlagsTuner(MeasurementInterface):
         with open(f'{results_folder}/results.json', 'w') as results:
             json.dump(execute_result['time'], results)
 
-        file_management.move_results(self.example_path, results_folder)
-        openacc_timing_data_parser.parser(results_folder)
+        file_management_V2.move_results(self.example_path, results_folder)
+        openacc_timing_data_parser_V2.parse_openacc_timing(results_folder)
 
         results_dict = self.result_dict(execute_result, cfg, False)
         df_dictionary = pd.DataFrame([results_dict])
@@ -138,7 +138,7 @@ class GccFlagsTuner(MeasurementInterface):
     # Handle failed execution by saving error files and moving files
     def handle_failed_execution(self, cfg, execute_result):
         os.system('cd ..')
-        results_folder = file_management.create_results_folder(self.res_config_path, self.config_counter)
+        results_folder = file_management_V2.create_results_folder(self.res_config_path, self.config_counter)
 
         self.logger.info(f'Saving current config file at {results_folder}/config.json')
         self.manipulator().save_to_file(cfg, f'{results_folder}/config.json')
@@ -147,8 +147,8 @@ class GccFlagsTuner(MeasurementInterface):
         error_file.write(execute_result['stderr'])
         error_file.close()
 
-        file_management.move_results(self.example_path, results_folder)
-        openacc_timing_data_parser.parser(results_folder)
+        file_management_V2.move_results(self.example_path, results_folder)
+        openacc_timing_data_parser_V2.parse_openacc_timing(results_folder)
 
         results_dict = self.result_dict(execute_result, cfg, True)
         df_dictionary = pd.DataFrame([results_dict])

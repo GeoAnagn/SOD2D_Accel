@@ -68,13 +68,6 @@ def parser(results_folder):
                 data_str = data_str[data_str.find("total=") + len("total=")  : data_str.find("max=")]
                 data_time += int(data_str)
 
-        # For debug purposes.
-        # print("Printing Stats for file", filepath)
-        # print("The function found is", function_name)
-        # print("Total time:", total_time * 1e-6, "s")
-        # print("Total time:", compute_time * 1e-6, "s")
-        # print("Total time:", data_time * 1e-6, "s")
-
         # Crete dictionary with collected info.
         timing_dict = {}
         timing_dict["File Path"] = filepath
