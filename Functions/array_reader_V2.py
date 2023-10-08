@@ -10,7 +10,7 @@ def data_read(data_folder: str, variable_name: str):
 # Function to read a 1D array from binary data
 def read_array(data, shape, dtype, fortran_order=True):
     # Create a NumPy array from binary data
-    array = np.frombuffer(data, dtype=dtype)
+    array = np.frombuffer(data, dtype=dtype, offset=4)
     # Reshape the array using Fortran order (column-major) or C order (row-major)
     return array.reshape(shape, order='F' if fortran_order else 'C')
 
