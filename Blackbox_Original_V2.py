@@ -2,7 +2,7 @@ import os
 import json
 import time
 from Functions import file_management_V2
-from Functions.Parsers import openacc_timing_data_parser_V2
+from Functions.Parsers import openacc_timing_data_parser
 
 def main():
     # Environment variable for OpenACC timing analysis.
@@ -58,7 +58,7 @@ def main():
 
     print('Parsing OpenAcc Timing Analysis')
     # Parse OpenAcc Timing Analysis
-    openacc_timing_data_parser_V2.parse_openacc_timing(results_folder)
+    openacc_timing_data_parser.parser(results_folder)
 
 if __name__ == '__main__':
     main()

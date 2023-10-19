@@ -34,6 +34,7 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 ├── JSONs
 │   ├── Blackbox_Info.json
 │   └── Whitebox_Info.json
+├── Scripts
 ├── Example
 │   └── ...
 ├── Functions
@@ -65,6 +66,10 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
   └ Main python file for the whitebox exploration of the modified SOD2D execution.
 - **Configuration_Tester.py**  
   └ Python file for testing the configurations of the SOD2D exploration results.
+- **Scripts**  
+  └ Folder containing the scripts for the SOD2D file replacement.
+- **Example**  
+  └ Folder for the example file that the SOD2D will use.
 - **JSONs**
   - **Original_Info.json**  
     └ Info file for SOD2D execution. (Detailed explanation in usage section.)
@@ -74,8 +79,6 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
     └ Whitebox data storing file for parameter setup. (Detailed explanation in usage section.)
   - **Whitebox_Info.json**  
     └ Whitebox info file for parameter setup. (Detailed explanation in usage section.)
-- **Example**  
-  └ Folder for the example file that the SOD2D will use.
 - **Functions**  
   └ Folder where the custom functions, of the main python files, are stored.
 - **Modified_Sod2d_Files**
@@ -102,44 +105,51 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
   - **time.json**: Contains the total SOD2D execution time
   - **openacc_timing.csv**: Contains the timing info for each function. (Can be used for checking if analysis has found a better solution.)
 
-#### SOD2D File Replacement (A script will be uploaded for plug and play capability)
+#### SOD2D File Replacement
+
 In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the **Modified_Sod2d_Files/Blackbox_Analysis** folder. Bellow is an explanation of where the files should be placed. 
+
+#### Automated File Replacement
+
+Run the ***Scripts/Blackbox_File_Replacement.sh*** script. This will automatically move the files to the appropriate folders.
+
+#### Manual File Replacement
 
 - **elem_convec.f90**  
   └ In this file the function that is modified and needs analysis is ***full_convec_ijk***.  
   Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
-  cp Modified_Sod2d_Files/elem_convec.f90 {sod2d_folder}/src/lib_sod2d/sources
+  cp Modified_Sod2d_Files/Blackbox_Analysis/elem_convec.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **elem_diffu.f90**  
   └ In this file the function that is modified and needs analysis is ***full_diffu_ijk***.  
   Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
-  cp Modified_Sod2d_Files/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
+  cp Modified_Sod2d_Files/Blackbox_Analysis/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **mod_analysis.f90**  
   └ In this file the function that is modified and needs analysis is ***visc_dissipationRate***.  
   Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
-  cp Modified_Sod2d_Files/mod_analysis.f90 {sod2d_folder}/src/lib_sod2d/sources
+  cp Modified_Sod2d_Files/Blackbox_Analysis/mod_analysis.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **mod_entropy_viscosity.f90**  
   └ In this file the function that is modified and needs analysis is ***smart_visc_spectral***.  
   Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
-  cp Modified_Sod2d_Files/mod_entropy_viscosity.f90 {sod2d_folder}/src/lib_sod2d/sources
+  cp Modified_Sod2d_Files/Blackbox_Analysis/mod_entropy_viscosity.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 - **TGVSolver**  
   └ This file must be modified only if simulation parameters need to be changed. (save, time, max_steps, etc.)  
   Should be moved to *{sod2d_folder}/src/lib_mainBaseClass/sources*
   ```
-  cp Modified_Sod2d_Files/TGVSolver.f90 {sod2d_folder}/src/lib_mainBaseClass/sources
+  cp Modified_Sod2d_Files/Blackbox_Analysis/TGVSolver.f90 {sod2d_folder}/src/lib_mainBaseClass/sources
   ```
 - **time_integ.f90**  
   └ In this file the function that is modified and needs analysis is ***rk_4_main***.  
   Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
   ```
-  cp Modified_Sod2d_Files/time_integ.f90 {sod2d_folder}/src/lib_sod2d/sources
+  cp Modified_Sod2d_Files/Blackbox_Analysis/time_integ.f90 {sod2d_folder}/src/lib_sod2d/sources
   ```
 
 Now in order for SOD2D to support the changes run:
@@ -150,31 +160,48 @@ cd {sod2d_folder}/build & make clean & make
 #### Last step before analysis (JSON Explanation)
 ```json
 {   
-    "sod2d_path" : "path_of_sod2d_executable",
+    "sod2d_path" : "path_of_sod2d_executable", // Default is /home/apps/sod2d/build/src/app_sod2d/sod2d
     "gpu_ids": "0, ..., No.GPUs",
     "rank_num": "No.GPUs",
-    "dataframe_columns": ["var1",
-                          ...,
-                          "varN", 
+    "dataframe_columns": ["gang_num_fcijk", 
+                          "worker_num_fcijk", 
+                          "vector_num_fcijk", 
+                          "gang_num_fdijk", 
+                          "worker_num_fdijk", 
+                          "vector_num_fdijk",
+                          "gang_num_vdr",
+                          "worker_num_vdr",
+                          "vector_num_vdr",
+                          "gang_num_svs",
+                          "worker_num_svs",
+                          "vector_num_svs",
                           "time"],
     "repetitions": No.Repetitions,
     "configs_to_check": No.Configurations,
     "parameters": [
         {
-            "name": "var1",
-            "min" : Min_Value,
-            "max" : Max_Value,
-            "multiplier": Value_Multiplier,
+            "name": "gang_num_fcijk",
+            "min" : Min_Value, // Default 1
+            "max" : Max_Value, // Default 1000
+            "multiplier": Value_Multiplier, // Default 512
             "type": "integer"
         },
-        ...,
         {
-            "name": "varN",
-            "min" : Min_Value,
-            "max" : Max_Value,
-            "multiplier": Value_Multiplier,
+            "name": "worker_num_fcijk",
+            "min" : 1,
+            "max" : 1,
+            "multiplier": 1,
             "type": "integer"
-        }
+        },
+        {
+            "name": "vector_num_fcijk",
+            "min" : Min_Value, // Default 1
+            "max" : Max_Value, // Default 32
+            "multiplier": Value_Multiplier, // Default 32
+            "type": "integer"
+        },
+
+        // Repeat for all the variables in the dataframe columns EXEPT time
     ]    
 }
 ```
@@ -215,8 +242,14 @@ Using the results of the exploration we can now modify the SOD2D files with the 
 
 ### Whitebox Analysis
 
-#### SOD2D File Replacement (A script will be uploaded for plug and play capability)
+#### SOD2D File Replacement
 In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the **Modified_Sod2d_Files/Whitebox_Analysis/Function_Call_Data_Generators** folder. Bellow is an explanation of where the files should be placed.
+
+#### Automated File Replacement
+
+Run the ***Scripts/Whitebox_Data_Generators.sh*** script. This will automatically move the files to the appropriate folders.
+
+#### Manual File Replacement
 
 - **elem_convec.f90**  
   └ In this file the function that is modified and needs analysis is ***full_convec_ijk***.  

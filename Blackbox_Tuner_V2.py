@@ -6,45 +6,57 @@ import logging
 import opentuner
 import pandas as pd
 from Functions import file_management_V2, config_checks_V2
-from Functions.Parsers import openacc_timing_data_parser_V2
+from Functions.Parsers import openacc_timing_data_parser
 from opentuner import Result, IntegerParameter, ConfigurationManipulator, MeasurementInterface
 
+# Set up logging for the tuner
+def setup_logging():
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)  # Set up logger for the tuner
+
+    return logger
+
+def load_configuration():
+    config_path = "JSONs/Blackbox_Info.json"  # Path to the configuration JSON
+    with open(config_path, 'r') as f:
+        opentuner_info = json.load(f)  # Load the configuration data
+    
+    return opentuner_info
+
+ # Set up paths for various directories
+def setup_paths():
+    paths = file_management_V2.path_definitions()  # Get directory paths from file_management
+    
+    return paths[0], paths[1], paths[2], paths[3]
+
+# Load the results dataframe from the tuner results directory
+def load_results_df(tuner_res_path, opentuner_info):
+    results_path = f'{tuner_res_path}/results.xlsx'
+    try:
+        results_df = pd.read_excel(results_path)  # Load results dataframe
+        config_counter = len(results_df)  # Update the configuration counter
+    except Exception as e:
+        results_df = pd.DataFrame(columns=opentuner_info['dataframe_columns'])  # Create an empty dataframe if no results exist
+        config_counter = 0
+    
+    return results_df, config_counter
+
 class GccFlagsTuner(MeasurementInterface):
-    def __init__(self):
-        super().__init__()
-        self.load_configuration()  # Load the configuration from JSON
-        self.setup_logging()  # Set up logging for the tuner
-        self.setup_paths()  # Set up paths for various directories
-        self.config_counter = 0  # Counter for tested configurations
-        self.repetitions_counter = 0  # Counter for repeated configurations
-        self.load_results_df()  # Load the results dataframe
-
-    def load_configuration(self):
-        config_path = "JSONs/Blackbox_Info.json"  # Path to the configuration JSON
-        with open(config_path, 'r') as f:
-            self.opentuner_info = json.load(f)  # Load the configuration data
+    logger = setup_logging() # Set up logging for the tuner
+    opentuner_info = load_configuration() # Load the configuration from JSON
+    # Paths to the example, original results, tuner results, configuration results directories
+    example_path, og_res_path, tuner_res_path, res_config_path = setup_paths()
+    # Results Dataframe and Counter for tested configurations
+    results_df, config_counter = load_results_df(tuner_res_path, opentuner_info)
+    repetitions_counter = 0 # Counter for repeated configurations   
     
-    # Set up logging for the tuner
-    def setup_logging(self):
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-        self.logger = logging.getLogger(__name__)  # Set up logger for the tuner
-
-    # Set up paths for various directories
-    def setup_paths(self):
-        paths = file_management_V2.path_definitions()  # Get directory paths from file_management
-        self.example_path = paths[0]  # Path to the example directory
-        self.og_res_path = paths[1]  # Path to the original results directory
-        self.tuner_res_path = paths[2]  # Path to the tuner results directory
-        self.res_config_path = paths[3]  # Path to the configuration results directory
-    
-    # Load the results dataframe from the tuner results directory
-    def load_results_df(self):
-        try:
-            results_path = self.tuner_res_path
-            self.results_df = pd.read_excel(f'{results_path}/results.xlsx', index_col=0)  # Load results dataframe
-            self.config_counter += len(self.results_df.index)  # Update the configuration counter
-        except Exception as e:
-            self.results_df = pd.DataFrame(columns=self.opentuner_info['dataframe_columns'])  # Create an empty dataframe if no results exist
+    # Environment variable for OpenACC timing analysis.
+    os.environ['PGI_ACC_TIME'] = '1'
+    # Set id ordered based on GPU BUS ID. 
+    # Run nvidia-smi to see how GPUs will be ordered and pick your poison.
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+    # Set appropriate GPU id.
+    os.environ['CUDA_VISIBLE_DEVICES'] = opentuner_info['gpu_ids']
 
     # Initialize the ConfigurationManipulator and add parameters based on their type
     def manipulator(self):
@@ -98,9 +110,13 @@ class GccFlagsTuner(MeasurementInterface):
                 assert execute_result['returncode'] == 0  # Check if execution was successful
                 self.logger.info("Successful execution of Sod2d Application")
                 self.handle_successful_execution(cfg, execute_result)  # Handle successful execution
+
+                return Result(time=execute_result['time'])
             except AssertionError:
                 self.logger.error("Execution of Sod2d Application Failed.")
                 self.handle_failed_execution(cfg, execute_result)  # Handle failed execution
+
+                return Result(time=execute_result['time'])
         else:
             self.repetitions_counter += 1
             self.logger.info("Configuration already tested, using cached result")
@@ -119,8 +135,9 @@ class GccFlagsTuner(MeasurementInterface):
         with open(f'{results_folder}/results.json', 'w') as results:
             json.dump(execute_result['time'], results)
 
+        file_management_V2.rm_files(self.example_path)
         file_management_V2.move_results(self.example_path, results_folder)
-        openacc_timing_data_parser_V2.parse_openacc_timing(results_folder)
+        openacc_timing_data_parser.parser(results_folder)
 
         results_dict = self.result_dict(execute_result, cfg, False)
         df_dictionary = pd.DataFrame([results_dict])
@@ -128,12 +145,6 @@ class GccFlagsTuner(MeasurementInterface):
         self.results_df.to_excel(f'{self.tuner_res_path}/results.xlsx', index=False)
         self.config_counter += 1
         self.logger.info("\n-----------------------------------------------------------\n")
-
-        minimization_value = 1
-        for param in results_dict:
-            minimization_value = minimization_value * results_dict[param]
-
-        return Result(time=minimization_value)
 
     # Handle failed execution by saving error files and moving files
     def handle_failed_execution(self, cfg, execute_result):
@@ -147,8 +158,9 @@ class GccFlagsTuner(MeasurementInterface):
         error_file.write(execute_result['stderr'])
         error_file.close()
 
+        file_management_V2.rm_files(self.example_path)
         file_management_V2.move_results(self.example_path, results_folder)
-        openacc_timing_data_parser_V2.parse_openacc_timing(results_folder)
+        openacc_timing_data_parser.parser(results_folder)
 
         results_dict = self.result_dict(execute_result, cfg, True)
         df_dictionary = pd.DataFrame([results_dict])
@@ -156,12 +168,6 @@ class GccFlagsTuner(MeasurementInterface):
         self.results_df.to_excel(f'{self.tuner_res_path}/results.xlsx', index=False)
         self.config_counter += 1
         self.logger.info("\n-----------------------------------------------------------\n")
-        
-        minimization_value = 1
-        for param in results_dict:
-            minimization_value = minimization_value * results_dict[param]
-
-        return Result(time=minimization_value)
 
     # Get the cached result for a configuration
     def get_cached_result(self, cfg):
@@ -179,7 +185,9 @@ class GccFlagsTuner(MeasurementInterface):
     
     # Finish the execution by moving the tuner results directory
     def finish_execution(self):
-        shutil.move(self.tuner_res_path, "/Archive/Blackbox_Analysis/Modified_Folder")  # Move the tuner results directory to the archive
+        destination_path = "Archive/Blackbox_Analysis/Modified_Folder"
+        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+        shutil.move(f'{self.tuner_res_path}/', destination_path)  # Move the tuner results directory to the archive
         self.logger.info("Checked all requested configs. Bye!")
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ import json
 import time
 import pandas as pd
 from Functions import file_management_V2
-from Functions.Parsers import openacc_timing_data_parser_V2
+from Functions.Parsers import openacc_timing_data_parser
 
 def main():
     # Enable OpenACC timing analysis environment variable
@@ -100,7 +100,7 @@ def main():
 
             print("Parsing OpenAcc Timing Analysis")
             # Parse OpenAcc Timing Analysis
-            openacc_timing_data_parser_V2.parser(results_folder)
+            openacc_timing_data_parser.parser(results_folder)
 
             config_num += 1
 

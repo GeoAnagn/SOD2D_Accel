@@ -122,13 +122,13 @@ def path_definitions() -> list:
     """
 
     # Path where the example file must be stored.
-    example_path = './Example'
+    example_path = 'Example'
     # Path where the unmodified Sod2D result files must be stored.
-    og_res_path = './Results/Original_Results'
+    og_res_path = 'Results/Original_Results'
     # Path where OpenTuner must store the results generated.
-    tuner_res_path = './Results/Tuner_Results'
+    tuner_res_path = 'Results/Tuner_Results'
     # Path where the different configuration results will be stored.
-    res_config_path = './Results/Tuner_Results/Configs'
+    res_config_path = 'Results/Tuner_Results/Configs'
 
     # Different checks for the above paths' existence.
     if not os.path.isdir(example_path):

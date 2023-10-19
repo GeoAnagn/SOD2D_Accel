@@ -1,6 +1,6 @@
 {
-    "sod2d_path": "path_of_sod2d_executable",
+    "sod2d_path": "/home/apps/sod2d/build/src/app_sod2d/sod2d",
     "example_path": "Example",
-    "gpu_ids": "0, ..., x",
-    "rank_num": "x"
+    "gpu_ids": "0",
+    "rank_num": "1"
 }
