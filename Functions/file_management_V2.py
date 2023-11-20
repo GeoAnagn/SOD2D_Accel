@@ -32,7 +32,7 @@ def move_results(example_path: str, results_folder: str) -> None:
 
     print(f'Moving simulation results at {results_folder}')
     # Define the starting substring of the files to be moved.
-    substrings = ["results_", "sod2d_", "timer_", "analysis_", "openacc_"]
+    substrings = ["results_", "sod2d_", "timer_", "analysis_", "openacc_", "Utilization", "h5diff"]
     # Get all filenames from example_path.
     files = [f for f in os.listdir(example_path) if os.path.isfile(os.path.join(example_path, f))]
     # Check if filename contains any of the substrings defined above,
@@ -60,6 +60,32 @@ def dump_results(results_folder: str) -> None:
             # with "modified_" added to the start of the filename in the results folder.
             h5dump_cmd = f'cd {results_folder} && h5dump {filename} > modified_{filename.replace(".h5", "")}'
             os.system(h5dump_cmd)
+
+
+def compare_h5(results_folder: str, og_res_path: str):
+    """
+    Compare unmodified Sod2D .h5 files with the modified Sod2D .h5 files.
+
+    results_folder: The folder where the results, from the modified Sod2D, have been stored.
+
+    og_res_path: The folder where the results, from the unmodified Sod2D, have been stored.
+
+    remove_files: Remove files for space preservation (0 or 1).
+    """
+    # Get all filenames from the results folder.
+    modified_files = [f for f in os.listdir(results_folder) if os.path.isfile(os.path.join(results_folder, f))]
+    # Get all filenames from the original results folder.
+    original_files = [f for f in os.listdir(og_res_path) if os.path.isfile(os.path.join(og_res_path, f))]
+    for modified_filename in modified_files:
+        for original_filename in original_files:
+            if modified_filename == original_filename and ".h5" in modified_filename:
+                # Diff the two files and store the result to a .txt file starting with "diff_"
+                print(f"Comparing {original_filename} and {modified_filename}")
+                diff_cmd = f'h5diff --delta=10e-8 {os.path.join(og_res_path, original_filename)}'
+                diff_cmd += f' {os.path.join(results_folder, modified_filename)}'
+                diff_cmd += f' >> {os.path.join(results_folder, "h5diff")}.txt 2>&1 '
+                os.system(diff_cmd)
+                print(f'Output Saved to {os.path.join(results_folder, "h5diff")}.txt')
 
 def compare_results(results_folder: str, og_res_path: str, remove_files: int = 1) -> None:
     """

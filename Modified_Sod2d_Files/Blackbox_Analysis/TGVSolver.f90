@@ -58,7 +58,7 @@ contains
       this%load_step = 8001
 
       this%nstep = 40000
-      this%maxPhysTime = 10.0_rp
+      this%maxPhysTime = 0.5_rp
 
       this%cfl_conv = 0.5_rp
       this%cfl_diff = 0.5_rp

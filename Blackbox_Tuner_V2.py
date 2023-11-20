@@ -1,9 +1,11 @@
 import os
 import sys
 import json
+import signal
 import shutil
 import logging
 import opentuner
+import subprocess
 import pandas as pd
 from Functions import file_management_V2, config_checks_V2
 from Functions.Parsers import openacc_timing_data_parser
@@ -46,9 +48,11 @@ class GccFlagsTuner(MeasurementInterface):
     opentuner_info = load_configuration() # Load the configuration from JSON
     # Paths to the example, original results, tuner results, configuration results directories
     example_path, og_res_path, tuner_res_path, res_config_path = setup_paths()
+    og_res_path = opentuner_info['og_res_path']
     # Results Dataframe and Counter for tested configurations
     results_df, config_counter = load_results_df(tuner_res_path, opentuner_info)
     repetitions_counter = 0 # Counter for repeated configurations   
+    successful_counter = 0 # COunter for successful configurations
     
     # Environment variable for OpenACC timing analysis.
     os.environ['PGI_ACC_TIME'] = '1'
@@ -88,7 +92,7 @@ class GccFlagsTuner(MeasurementInterface):
     def run(self, desired_result, input, limit):
         cfg = desired_result.configuration.data  # Get the configuration to test from OpenTuner
 
-        if self.config_counter == self.opentuner_info["configs_to_check"]:
+        if self.successful_counter == self.opentuner_info["configs_to_check"]:
             self.finish_execution()
             sys.exit()
 
@@ -102,17 +106,21 @@ class GccFlagsTuner(MeasurementInterface):
 
             self.logger.info("Executing Sod2d Application")
             execute_cmd = f'cd {self.example_path} &&'
+            execute_monitor = execute_cmd + ' nvidia-smi dmon -s pucvmet > Utilization.csv'
             execute_cmd += ' mpirun --allow-run-as-root --mca coll ^hcoll'
             execute_cmd += f' -np {self.opentuner_info["rank_num"]} {self.opentuner_info["sod2d_path"]} > openacc_timing.txt 2>&1'
-            
+
+            pro = subprocess.Popen(execute_monitor, shell=True, preexec_fn=os.setsid)    
             execute_result = self.call_program(execute_cmd)  # Execute the Sod2d Application
             try:
                 assert execute_result['returncode'] == 0  # Check if execution was successful
+                os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
                 self.logger.info("Successful execution of Sod2d Application")
                 self.handle_successful_execution(cfg, execute_result)  # Handle successful execution
 
                 return Result(time=execute_result['time'])
             except AssertionError:
+                os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
                 self.logger.error("Execution of Sod2d Application Failed.")
                 self.handle_failed_execution(cfg, execute_result)  # Handle failed execution
 
@@ -135,6 +143,7 @@ class GccFlagsTuner(MeasurementInterface):
         with open(f'{results_folder}/results.json', 'w') as results:
             json.dump(execute_result['time'], results)
 
+        file_management_V2.compare_h5(self.example_path, self.og_res_path)
         file_management_V2.rm_files(self.example_path)
         file_management_V2.move_results(self.example_path, results_folder)
         openacc_timing_data_parser.parser(results_folder)
@@ -144,6 +153,7 @@ class GccFlagsTuner(MeasurementInterface):
         self.results_df = pd.concat([self.results_df, df_dictionary], ignore_index=True)
         self.results_df.to_excel(f'{self.tuner_res_path}/results.xlsx', index=False)
         self.config_counter += 1
+        self.successful_counter += 1
         self.logger.info("\n-----------------------------------------------------------\n")
 
     # Handle failed execution by saving error files and moving files
@@ -171,17 +181,17 @@ class GccFlagsTuner(MeasurementInterface):
 
     # Get the cached result for a configuration
     def get_cached_result(self, cfg):
-        existing_cfg = pd.read_excel(f'{self.tuner_res_path}/results.xlsx', index_col=0)
+        existing_cfg = pd.read_excel(f'{self.tuner_res_path}/results.xlsx')
         for param_name, param_value in cfg.items():
             multiplier = next(p['multiplier'] for p in self.opentuner_info["parameters"] if p["name"] == param_name)  # Find the multiplier for the parameter
             existing_cfg = existing_cfg.loc[existing_cfg[param_name] == param_value * multiplier]  # Locate the cached result for the configuration
-        
-        results_dict = existing_cfg.iloc[0].to_dict() 
-        minimization_value = 1
-        for param in results_dict:
-            minimization_value = minimization_value * results_dict[param]
-            
-        return  minimization_value # Return the minimization value for the configuration
+
+        # results_dict = existing_cfg.iloc[0].to_dict() 
+        # minimization_value = 1
+        # for param in results_dict
+        #     minimization_value = minimization_value * results_dict[param]
+
+        return existing_cfg["time"].iloc[0] # Return the minimization value for the configuration
     
     # Finish the execution by moving the tuner results directory
     def finish_execution(self):
