@@ -2,40 +2,97 @@
 
 A custom acceleration framework for CFD Simulation Framework SOD2D using the Opentuner library for the exploration of different combinations of OpenACC directives and loop optimization techniques based on execution time. 
 
-## Instalation
+# Installation
+## Quick Installation (Recommended)
+If Docker is installed in system you can pull an image having everything setup (30GB required space):  
+- docker pull geoaiagia/refmap:february
 
+## Local Installation
 ### Prerequisites
 - NVIDIA GPU/s. (AMD version pending...)
-- SOD2D with GPU support.  
-  └ Follow instructions in https://gitlab.com/bsc_sod2d/sod2d_gitlab/-/wikis/home for detailed installation instructions.
+- NVIDIA HPC SDK  
+  └ Follow instructions in [here](https://developer.nvidia.com/nvidia-hpc-sdk-233-downloads) for detailed installation.
 - Anaconda  
-  └ Follow instructions in https://docs.anaconda.com/free/anaconda/install/linux/ for detailed installation.
-- A Dockerfile will be uploaded for plug and play capability.
+  └ Follow instructions in [here](https://docs.anaconda.com/free/anaconda/install/linux/) for detailed installation.
+- Intel Vtune  
+  └ Follow instructions in [here](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler-download.html) for detailed installation
+
 
 ### Environment Instalation instructions
-Supposing you have not used our Dockerfile and you have all the presequisites setup, follow the following instructions to create a python environment and install the needed libraries:
+Supposing you have not used our Dockerfile and you have all the presequisites setup, follow the following  
+
+Instructions to setup system package presequities:
+- apt -y update && apt -y upgrade
+- apt install -y build-essential git cmake gfortran ninja-build wget pkg-config vim
+- apt install -y binutils binutils-dev libiberty-dev
+- apt install -y software-properties-common
+- apt install -y libssl-dev libc6-dev
+- apt install -y libdrm-dev
+- apt install -y python3
+- apt install -y gmsh
+- apt install -y btop
+- apt install -y pip
+
+Instructions to create a python environment and install the needed libraries:
 - conda create --name {environment_name} python=3.11
 - conda activate {environment_name}
 - conda install pip (if not already installed)
 - pip install numpy
 - pip install pandas
+- pip install openpyxl
+- pip install seaborn
+- pip install matplotlib
 - pip install scikit-learn
 - pip install opentuner
 - pip install alive_progress
 
+Instructions to setup rest of dependencies can be found on [SOD2D Gitlab Repository](https://gitlab.com/bsc_sod2d/sod2d_gitlab/-/tree/02b47d1f91ffbf4c4ac342d0773015b9243c4e2c) make sure it is version 02b47d1f91ffbf4c4ac342d0773015b9243c4e2c
+
+# Usage
+
+Firstly download this repository:
+```
+git clone https://github.com/GeoAnagn/SOD2D_Accel.git
+cd {path}/SOD2D_Accel
+```
+Next move to the SOD2D_Versions folder and download SOD2D:
+```
+cd SOD2D_Versions
+git clone https://gitlab.com/bsc_sod2d/sod2d_gitlab.git
+cd sod2d_gitlab
+git checkout 02b47d1f91ffbf4c4ac342d0773015b9243c4e2c
+cd ../../
+```
+
+**IMPORTANT: Set your Taylor Green Vortex parameters before procceding.**  
+Parameters in file **sod2d_gitlab/src/lib_mainBaseClass/sources/TGVSolver.f90**   
+Enable tgv in file **sod2d_gitlab/src/app_sod2/sources/sod2d.f90**
+
+Now move to the **SOD2D_Accel/Scripts** folder and execute the **Initialize_SOD2D_versions.sh** to create the modified SOD2D versions.
+```
+cd Scripts
+./Initialize_SOD2D_versions.sh
+cd ..
+```
+
+Now everything is setup to start profiling and auto-tuning.
+
 ## Framework Folder Hierarchy
 ```bash
-├── Blackbox_Original.py
+├── Original_SOD2D_CPU.py
+├── Original_SOD2D_GPU.py
 ├── Blackbox_Tuner.py
-├── Whitebox_Data_Postprocessing.py
-├── Whitebox_Original.py
-├── Whitebox_Tuner.py
-├── Configuration_Tester.py
 ├── JSONs
-│   ├── Blackbox_Info.json
-│   └── Whitebox_Info.json
+│   ├── Original_SOD2D_CPU_Info.json
+│   ├── Original_SOD2D_CPU_Info.json
+│   └── Blackbox_Versions
+│       ├── Blackbox_Coupled.json
+│       └── Blackbox_Decoupled.json
 ├── Scripts
+│   └── Initialize_SOD2D_versions.sh
 ├── Example
+│   └── ...
+├── SOD2D_Versions
 │   └── ...
 ├── Functions
 │   ├── Parsers
@@ -43,398 +100,290 @@ Supposing you have not used our Dockerfile and you have all the presequisites se
 └── Modified_Sod2d_Files
     ├── Blackbox_Analysis
     │   └── ...
-    └── Whitebox_Analysis
-        ├── Function_Call_Data_Generators
-        │   └── ...
-        ├── Function_Call_Data_Postprocessing
-        │   └── ...
-        ├── Modified_Functions
-        │   └── ...
-        └── Original_Functions
-            └── ...
+    └── Nsight_Modified_Files
+        └── ...
  
 ```
-- **Blackbox_Original.py**  
-  └ Python file for collecting timing information on the original SOD2D execution.
+- **Original_SOD2D_CPU.py**  
+  └ Python file for the CPU Version SOD2D execution.
+- **Original_SOD2D_GPU.py**  
+  └ Python file for the GPU Version SOD2D execution.
 - **Blackbox_Tuner.py**  
   └ Main python file for the blackbox exploration of the modified SOD2D execution.
-- **Whitebox_Data_Postprocessing.py**  
-  └ Python file for postprocessing the function input and output storing.
-- **Whitebox_Original.py**  
-  └ Python file for executing SOD2D with function input and output storing.
-- **Whitebox_Tuner.py**  
-  └ Main python file for the whitebox exploration of the modified SOD2D execution.
-- **Configuration_Tester.py**  
-  └ Python file for testing the configurations of the SOD2D exploration results.
 - **Scripts**  
   └ Folder containing the scripts for the SOD2D file replacement.
 - **Example**  
   └ Folder for the example file that the SOD2D will use.
+- **SOD2D_Versions**  
+  └ Folder for the SOD2D cloned repository.
 - **JSONs**
-  - **Original_Info.json**  
-    └ Info file for SOD2D execution. (Detailed explanation in usage section.)
+  - **Original_SOD2D_CPU_Info.py**  
+    └ CPU Version SOD2D info file for parameter setup. (Detailed explanation in usage section.)
+  - **Original_SOD2D_GPU_Info.py**  
+    └ GPU Version SOD2D info file for parameter setup. (Detailed explanation in usage section.)
   - **Blackbox_Info.json**  
     └ Blackbox info file for parameter setup. (Detailed explanation in usage section.)
-  - **Whitebox_Data.json**  
-    └ Whitebox data storing file for parameter setup. (Detailed explanation in usage section.)
-  - **Whitebox_Info.json**  
-    └ Whitebox info file for parameter setup. (Detailed explanation in usage section.)
 - **Functions**  
   └ Folder where the custom functions, of the main python files, are stored.
 - **Modified_Sod2d_Files**
   - **Blackbox_Analysis**  
-    └ Folder containing the modified SOD2D files for the blackbox exploration. (Detailed explanation in the first steps in usage section.)
-  - **Whitebox_Analysis**
-    - **Function_Call_Data_Generators**  
-      └ Folder containing the modified SOD2D files for the function call input parameters and result outputs storing.
-    - **Function_Call_Data_Postprocessing**  
-      └ Folder containing the python files for the function call input parameters and result outputs postprocessing.
-    - **Modified_Functions**  
-      └ Folder containing the standalone versions of the SOD2D functions fot whitebox analysis.
-    - **Original_Functions**  
-      └ Folder containing the original standalone versions of the SOD2D functions.
+    └ Folder containing the modified SOD2D files for the blackbox exploration. 
+  - **Nsight_Modified_Files**  
+    └ Folder containing the modified SOD2D files for the SOD2D GPU profiling. 
 
-## Usage
 
-### Blackbox Analysis
 
-#### First Steps
-- Move SOD2D example file to the **Example** folder
-- Modify ***JSONs/Original_Info.json*** with the appropriate SOD2D path, example path, GPU ids, and rank number.
-- Run ***Blackbox_Original.py***, this will create, if not already existent, an ***Archive/Blackbox_Analysis/Original_Example*** path including two files:
-  - **time.json**: Contains the total SOD2D execution time
-  - **openacc_timing.csv**: Contains the timing info for each function. (Can be used for checking if analysis has found a better solution.)
+## Profiling
 
-#### SOD2D File Replacement
+### CPU Profiling
 
-In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the **Modified_Sod2d_Files/Blackbox_Analysis** folder. Bellow is an explanation of where the files should be placed. 
+In order to profile the execution of SOD2D on a CPU the following steps must be followed:
 
-#### Automated File Replacement
-
-Run the ***Scripts/Blackbox_File_Replacement.sh*** script. This will automatically move the files to the appropriate folders.
-
-#### Manual File Replacement
-
-- **elem_convec.f90**  
-  └ In this file the function that is modified and needs analysis is ***full_convec_ijk***.  
-  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
-  ```
-  cp Modified_Sod2d_Files/Blackbox_Analysis/elem_convec.f90 {sod2d_folder}/src/lib_sod2d/sources
-  ```
-- **elem_diffu.f90**  
-  └ In this file the function that is modified and needs analysis is ***full_diffu_ijk***.  
-  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
-  ```
-  cp Modified_Sod2d_Files/Blackbox_Analysis/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
-  ```
-- **mod_analysis.f90**  
-  └ In this file the function that is modified and needs analysis is ***visc_dissipationRate***.  
-  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
-  ```
-  cp Modified_Sod2d_Files/Blackbox_Analysis/mod_analysis.f90 {sod2d_folder}/src/lib_sod2d/sources
-  ```
-- **mod_entropy_viscosity.f90**  
-  └ In this file the function that is modified and needs analysis is ***smart_visc_spectral***.  
-  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
-  ```
-  cp Modified_Sod2d_Files/Blackbox_Analysis/mod_entropy_viscosity.f90 {sod2d_folder}/src/lib_sod2d/sources
-  ```
-- **TGVSolver**  
-  └ This file must be modified only if simulation parameters need to be changed. (save, time, max_steps, etc.)  
-  Should be moved to *{sod2d_folder}/src/lib_mainBaseClass/sources*
-  ```
-  cp Modified_Sod2d_Files/Blackbox_Analysis/TGVSolver.f90 {sod2d_folder}/src/lib_mainBaseClass/sources
-  ```
-- **time_integ.f90**  
-  └ In this file the function that is modified and needs analysis is ***rk_4_main***.  
-  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
-  ```
-  cp Modified_Sod2d_Files/Blackbox_Analysis/time_integ.f90 {sod2d_folder}/src/lib_sod2d/sources
-  ```
-
-Now in order for SOD2D to support the changes run:
+First modify the **Original_SOD2D_CPU_info.json** located in the **JSONs** folder
+```json
+{
+    "sod2d_path": "./SOD2D_Versions/sod2d_cpu/build/src/app_sod2d/sod2d",
+    "example_path": "{Example Path}",
+    "results_path": "{result_path_name}",
+    "rank_num": "{number_of_threads_to_use}",
+    "metric": "{intel_vtune_profiling_option}"
+}
 ```
-cd {sod2d_folder}/build & make clean & make
-```
+- **sod2d_path**  
+  └ Path of sod2d executable.
+- **example_path**  
+  └ Folder of sod2d example.
+- **results_path**  
+  └ Folder of sod2d result files.
+- **rank_num**  
+  └ Number of CPU threads to be used.
+- **metric**  
+  └ Intel Vtune profiling metric (i.e. hotspots, performance_snapshot, threading)
 
-#### Last step before analysis (JSON Explanation)
+Next execute the following command to start the profiling:
+```
+python3 Original_SOD2D_CPU.py
+```
+The result files will be automatically moved to the **results_path** provided
+
+### GPU Profiling
+
+In order to profile the execution of SOD2D on GPU/s the following steps must be followed:
+
+First modify the **Original_SOD2D_GPU_info.json** located in the **JSONs** folder
+```json
+{
+    "sod2d_path": "./SOD2D_Versions/sod2d_profiling/build/src/app_sod2d/sod2d",
+    "example_path": "{Example Folder}",
+    "results_path": "{Results Folder}",
+    "gpu_ids": "{GPU ID/s}",
+    "rank_num": "{Number of GPUs to use}"
+}
+```
+- **sod2d_path**  
+  └ Path of sod2d executable.
+- **example_path**  
+  └ Folder of sod2d example.
+- **results_path**  
+  └ Folder of sod2d result files.
+- **gpu_ids**  
+  └ Which GPU/s to use. In the case of multiple GPUs seperate the ids by comma (i.e. 1,2,3,4)  
+  **NOTE:** If unsure what GPU ID to use run on the terminal:
+  ```
+  export CUDA_DEVICE_ORDER=PCI_BUS_ID
+  nvidia-smi
+  ```
+- **rank_num**  
+  └ Number of GPUs to be used.
+
+Next execute the following command to start the profiling:
+```
+python3 Original_SOD2D_GPU.py
+```
+The result files will be automatically moved to the **results_path** provided  
+
+## Blackbox Analysis
+
+### Coupled Version
+
+In order to autotune the execution of SOD2D on GPU/s using the Blackbox Coupled variant the following steps must be followed:
+
+First modify the **Blackbox_Coupled.json** located in the **JSONs/Blackbox_Versions** folder
 ```json
 {   
-    "sod2d_path" : "path_of_sod2d_executable", // Default is /home/apps/sod2d/build/src/app_sod2d/sod2d
-    "gpu_ids": "0, ..., No.GPUs",
-    "rank_num": "No.GPUs",
-    "dataframe_columns": ["gang_num_fcijk", 
-                          "worker_num_fcijk", 
-                          "vector_num_fcijk", 
-                          "gang_num_fdijk", 
-                          "worker_num_fdijk", 
-                          "vector_num_fdijk",
-                          "gang_num_vdr",
-                          "worker_num_vdr",
-                          "vector_num_vdr",
-                          "gang_num_svs",
-                          "worker_num_svs",
-                          "vector_num_svs",
-                          "time"],
+    "sod2d_path": "./SOD2D_Versions/sod2d_blackbox_coupled/build/src/app_sod2d/sod2d",
+    "og_res_path": "{Original SOD2D Results Folder}",
+    "example_path": "{Example Folder}",
+    "results_path": "{Results Path}",
+    "gpu_ids": "{GPU ID/s}",
+    "rank_num": "{Number of GPUs to use}",
+    "dataframe_columns":[
+                            "gang_num", 
+                            "worker_num", 
+                            "vector_num",
+                            "time"
+                        ],
     "repetitions": No.Repetitions,
     "configs_to_check": No.Configurations,
     "parameters": [
         {
-            "name": "gang_num_fcijk",
-            "min" : Min_Value, // Default 1
-            "max" : Max_Value, // Default 1000
-            "multiplier": Value_Multiplier, // Default 512
+            "name": "gang_num",
+            "min" : Min_Value, // 1 (Recommended)
+            "max" : Max_Value, // 250 (Recommended)
+            "multiplier": Value_Multiplier, // 2048 (Recommended)
             "type": "integer"
         },
         {
-            "name": "worker_num_fcijk",
+            "name": "worker_num",
             "min" : 1,
             "max" : 1,
             "multiplier": 1,
             "type": "integer"
         },
         {
-            "name": "vector_num_fcijk",
-            "min" : Min_Value, // Default 1
-            "max" : Max_Value, // Default 32
-            "multiplier": Value_Multiplier, // Default 32
+            "name": "vector_num",
+            "min" : Min_Value, // 1 (Recommended)
+            "max" : Max_Value, // 20 (Recommended)
+            "multiplier": Value_Multiplier, // 32 (Recommended)
+            "type": "integer"
+        }
+    ]    
+}
+```
+- **sod2d_path**  
+  └ Path of sod2d executable.
+- **og_res_path**  
+  └ Original SOD2D execution results. (Original_SOD2D_GPU.py can be used to generate results)
+- **example_path**  
+  └ Folder of sod2d example.
+- **results_path**  
+  └ Folder of sod2d result files.
+- **gpu_ids**  
+  └ Which GPU/s to use. In the case of multiple GPUs seperate the ids by comma (i.e. 1,2,3,4)  
+  **NOTE:** If unsure what GPU ID to use run on the terminal:
+  ```
+  export CUDA_DEVICE_ORDER=PCI_BUS_ID
+  nvidia-smi
+  ```
+- **rank_num**  
+  └ Number of GPUs to be used.
+- **dataframe_columns**  
+  └ Columns for xlsx containing all configurations tested and timing results.
+- **repetitions**  
+  └ Integer value used to stop the autotuner in case it repeats the same configurations over and over/
+- **configs_to_check**  
+  └ Integer value used to define number of successful configurations tested.
+- **parameters**  
+  └ Parameters that the autotuner will explore. Each parameter consists of:  
+  - **name:** Name of variable must exist in dataframe columns.
+  - **min:**  Minimum possible value of parameter.
+  - **max:**  Maximum possible value of parameter.
+  - **multiplier:** Multiplier for the parameter value.
+  - **type:** Parameter type. (integer is currently supported)
+
+
+
+Next execute the following command to start the profiling:
+```
+python3 Blackbox_Tuner.py coupled
+```
+The result files will be automatically moved to the **results_path** provided  
+
+### Decoupled Version
+In order to autotune the execution of SOD2D on GPU/s using the Blackbox Coupled variant the following steps must be followed:
+
+First modify the **Blackbox_Decoupled.json** located in the **JSONs/Blackbox_Versions** folder
+```json
+{   
+    "sod2d_path": "./SOD2D_Versions/sod2d_blackbox_decoupled/build/src/app_sod2d/sod2d",
+    "og_res_path": "{Original SOD2D Results Folder}",
+    "example_path": "{Example Folder}",
+    "results_path": "{Results Path}",
+    "gpu_ids": "{GPU ID/s}",
+    "rank_num": "{Number of GPUs to use}",
+    "dataframe_columns": [
+                            "gang_num_fcijk", 
+                            "worker_num_fcijk", 
+                            "vector_num_fcijk",
+                            "gang_num_fdijk", 
+                            "worker_num_fdijk", 
+                            "vector_num_fdijk",
+                            "gang_num_vaek",
+                            "worker_num_vaek",
+                            "vector_num_vaek",
+                            "gang_num_svs",
+                            "worker_num_svs",
+                            "vector_num_svs",
+                            "gang_num_vdr",
+                            "worker_num_vdr",
+                            "vector_num_vdr",
+                            "time"
+                        ],
+    "repetitions": No.Repetitions,
+    "configs_to_check": No.Configurations,
+    "parameters": [
+        {
+            "name": "gang_num",
+            "min" : Min_Value, // 1 (Recommended)
+            "max" : Max_Value, // 250 (Recommended)
+            "multiplier": Value_Multiplier, // 2048 (Recommended)
             "type": "integer"
         },
+        {
+            "name": "worker_num",
+            "min" : 1,
+            "max" : 1,
+            "multiplier": 1,
+            "type": "integer"
+        },
+        {
+            "name": "vector_num",
+            "min" : Min_Value, // 1 (Recommended)
+            "max" : Max_Value, // 20 (Recommended)
+            "multiplier": Value_Multiplier, // 32 (Recommended)
+            "type": "integer"
+        }
 
         // Repeat for all the variables in the dataframe columns EXEPT time
     ]    
 }
 ```
 
-- **sod2d_path**    
-  └ Path of the SOD2D executable.
-- **gpu_ids**  
-  └ GPU ids to be used for the execution. (Separated by commas)
-- **rank_num**  
-  └ Rank number to be used for the execution.
-- **dataframe_columns**  
-  └ Columns of the dataframe that will be created. (Should include all the parameters and the time column.)
-- **repetitions**  
-  └ Number of consecutive executions that have configurations already checked. (If reached end exploration.)
-- **configs_to_check**  
-  └ Number of configurations to be checked in each exploration. (Should be less than the total number of configurations.)
-- **parameters**
-  - **name**  
-    └ Name of the parameter.
-  - **min**  
-    └ Minimum value of the parameter.
-  - **max**  
-    └ Maximum value of the parameter.
-  - **multiplier**  
-    └ Multiplier of the parameter. (Used for integer parameters.)
-  - **type**  
-    └ Type of the parameter. (integer or float)
-
-#### Analysis
-- Modify ***JSONs/Blackbox_Info.json*** with the appropriate parameters.
-- Run ***Blackbox_Tuner.py***, this will create, if not already existent, an ***Results/Tuner_Results/*** path including one file and one folder:
-  - **results.csv**: Contains the results of the exploration.
-  - **Configs**: Folder containing the results of each configuration seperately.
-
-- All the files in the ***Results/Tuner_Results/*** will be moved to ***Archive/Blackbox_Analysis/Modified_Folder*** upon completion of the exploration.
-
-Using the results of the exploration we can now modify the SOD2D files with the best configuration and rebuild SOD2D.
-
-### Whitebox Analysis
-
-#### SOD2D File Replacement
-In order for the exploration to happen we need to move our modified SOD2D files to the appropriate SOD2D folders and rebuild. All the files that should be replaced are located in the **Modified_Sod2d_Files/Whitebox_Analysis/Function_Call_Data_Generators** folder. Bellow is an explanation of where the files should be placed.
-
-#### Automated File Replacement
-
-Run the ***Scripts/Whitebox_Data_Generators.sh*** script. This will automatically move the files to the appropriate folders.
-
-#### Manual File Replacement
-
-- **elem_convec.f90**  
-  └ In this file the function that is modified and needs analysis is ***full_convec_ijk***.  
-  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
-  ```
-  cp Modified_Sod2d_Files/elem_convec.f90 {sod2d_folder}/src/lib_sod2d/sources
-  ```
-- **elem_diffu.f90**
-  └ In this file the function that is modified and needs analysis is ***full_diffu_ijk***.  
-  Should be moved to *{sod2d_folder}/src/lib_sod2d/sources*
-  ```
-  cp Modified_Sod2d_Files/elem_diffu.f90 {sod2d_folder}/src/lib_sod2d/sources
-  ```
-
-These version of the files include code that will store the input parameters and the result of the function call in a file until the program ends or user interrupt occurs. The files are stored in the ***Archive/Whitebox_Analysis/Data/Data_{Func_Call_IDX}/{function_name}*** folder.  
-
-Now in order for SOD2D to support the changes run:
-```
-cd {sod2d_folder}/build & make clean & make
-```
-
-**(Note)** More functions will be added in future versions.
-
-#### Data Collection
-
-In order to collect the input and output data of the functions that are needed to be analysed, the ***Whitebox_Data_Postproccesing.py*** is used. As a first step it executes the SOD2D with the modified files and collects the data. Some data collection parameters are defined in the ***JSONs/Whitebox_Data.json*** file and are explained bellow.
-
-```json
-{
-    "sod2d_path": "path_of_sod2d_executable",
-    "example_path": "Example",
-    "gpu_ids": "0, ..., No.GPUs",
-    "rank_num": "No.GPUs",
-
-    "store_path": "Archive/Whitebox_Analysis/Data",
-    "start_num" : 0,
-    "max_num" : No.MaxCalls,
-    "step" : No.Step,
-    "cluster_num" : No.Cluster
-}
-```
-
-- **sod2d_path**    
-  └ Path of the SOD2D executable.
+- **sod2d_path**  
+  └ Path of sod2d executable.
+- **og_res_path**  
+  └ Original SOD2D execution results. (Original_SOD2D_GPU.py can be used to generate results)
 - **example_path**  
-  └ Path of the example executable. Default is ***Example***.
+  └ Folder of sod2d example.
+- **results_path**  
+  └ Folder of sod2d result files.
 - **gpu_ids**  
-  └ GPU ids to be used for the execution. (Separated by commas)
+  └ Which GPU/s to use. In the case of multiple GPUs seperate the ids by comma (i.e. 1,2,3,4)  
+  **NOTE:** If unsure what GPU ID to use run on the terminal:
+  ```
+  export CUDA_DEVICE_ORDER=PCI_BUS_ID
+  nvidia-smi
+  ```
 - **rank_num**  
-  └ Rank number to be used for the execution.
-- **store_path**  
-  └ Path of the data storage. Default is ***Archive/Whitebox_Analysis/Data***.
-- **start_num**  
-  └ Number of the first function call to be stored.
-- **max_num**  
-  └ Maximum number of function calls to be stored.
-- **step**  
-  └ Number of function calls to be skipped between each stored function call.
-- **cluster_num**  
-  └ Number of clusters to be created for each function.
-
-#### Data Analysis
-
-Due to high number of function calls that are stored, the data analysis is seperated in two parts. The first part is the data postprocessing and the second part is the data analysis. The data postprocessing is done in order to create a dataframe that will be used for the analysis. The data analysis is done in order to find the most representative distinct function calls.
-
-##### Data Postprocessing
-
-The data postprocessing is also done by the ***Whitebox_Data_Postprocessing.py*** python file. The file as a first step creates **{function_name}.csv** files that contain the data of each functions' function calls. These files are stored at ***Archive/Whitebox_Analysis/Data*** folder. 
-
-##### Data Clustering
-
-Next these files are loaded and by applying a clustering algortihm the function calls are seperated in clusters based on the information they take as input and output. The number of clusters created is defined in the ***Whitebox_Data.json***. 
-
-Lastly the function call closest to the centroid of each cluster is selected and the a list of the most representative function calls is created for each function and saved to *.json* file for later use. The *.json* file is stored at ***Archive/Whitebox_Analysis/Data*** folder.  
-
-#### Per-function Executables
-
-In order to execute the Whitebox flow versions of the functions, to be analysed, must be made seperately of the whole SOD2D program and their respective fortran files. 
-
-Precompiled executables containing only the needed function have been made for the **full_convec_ijk** and **full_diffu_ijk**. 
-
-These files are located in the:
-- ***Modified_Sod2d_Files/Whitebox_Analysis/Original_Functions*** and 
-- ***Modified_Sod2d_Files/Whitebox_Analysis/Modified_Functions*** folders. 
-
-More specifically the folder Original_Functions contains the original versions of the functions and the Modified_Functions contains the modified versions of the functions. The files in the folders are:
-
-- full_convec_ijk.f90  
-  The standalone version of the full_convec_ijk function of the file elem_convec.f90.
-
-- full_diffu_ijk.f90  
-  The standalone version of the full_diffu_ijk function of the file elem_diffu.f90.
-
-- mod_constants.f90 & mod_nvtx.f90  
-  The files needed for the compilation of the standalone versions.
-
-- build.sh  
-  The script that compiles the standalone versions and creates the executables.
-
-All the executables generated are found in these folders. 
-
-#### Execution
-
-In order to execute the Whitebox flow versions of the functions, to be analysed, the ***Whitebox_Original.py*** and ***Whitebox_Tuner.py*** python files are used. The ***Whitebox_Original.py*** file executes the original versions of the functions and the ***Whitebox_Tuner.py*** file executes the modified versions of the functions.
-
-##### JSON Explanation
-```json
-{   
-    "data_path" : "Archive/Whitebox_Analysis/Data",
-    "func_path" : "Modified_Sod2d_Files/Whitebox_Analysis",
-    "func_ver" :  "/Modified_Functions",
-    "func_exec" : "/run_elem_diffu",
-    "func_name" : "elem_diffu",
-    "gpu_ids": "0, ..., x",
-    "rank_num": "x",
-    "func_call_idx": [],
-
-
-    "dataframe_columns": [
-        "var1",
-        "varN",
-        "time"
-    ],
-    "program_end": 1000,
-    "parameters": [
-        {
-            "name": "var1",
-            "min": 1,
-            "max": 1000,
-            "multiplier": 512,
-            "type": "integer"
-        },
-        {
-            "name": "varN",
-            "min": 1,
-            "max": 32,
-            "multiplier": 32,
-            "type": "integer"
-        }
-    ]
-}
-```
-
-- **data_path**  
-  └ Path of the data storage. Default is ***Archive/Whitebox_Analysis/Data***.
-- **func_path**  
-  └ Path of the folder containing the function executables. Default is ***Modified_Sod2d_Files/Whitebox_Analysis***.
-- **func_ver**  
-  └ Version of the function to be executed. (***Original*** or ***Modified***)
-- **func_exec**    
-  └ Name of the function executable.
-- **func_name**  
-  └ Name of the function.
-- **gpu_ids**  
-  └ GPU ids to be used for the execution. (Separated by commas)
-- **rank_num**  
-  └ Rank number to be used for the execution.
+  └ Number of GPUs to be used.
 - **dataframe_columns**  
-  └ Columns of the dataframe that will be created. (Should include all the parameters and the time column.)
+  └ Columns for xlsx containing all configurations tested and timing results.
 - **repetitions**  
-  └ Number of consecutive executions that have configurations already checked. (If reached end exploration.)
+  └ Integer value used to stop the autotuner in case it repeats the same configurations over and over/
 - **configs_to_check**  
-  └ Number of configurations to be checked in each exploration. (Should be less than the total number of configurations.)
+  └ Integer value used to define number of successful configurations tested.
 - **parameters**  
-  - **name**  
-    └ Name of the parameter.
-  - **min**  
-    └ Minimum value of the parameter.
-  - **max**  
-    └ Maximum value of the parameter.
-  - **multiplier**  
-    └ Multiplier of the parameter. (Used for integer parameters.)
-  - **type**  
-    └ Type of the parameter. (integer or float)
-- **func_call_idx**  
-  └ List of the function call indices to be executed. This must be filled with the appropriate results found in ***Archive/Whitebox_Analysis/Data/representative_calls.json***.
-
-##### Original Execution
-
-More specifically the ***Whitebox_Original.py*** file executes the original versions of the function needed using the representative stored input parameters and the results of the function calls and collects timing data. The timing data are stored in the ***Archive/Whitebox_Analysis/Original_Results/{Function Name}*** folder.
-
-##### Tuner Execution
-
-More specifically the ***Whitebox_Tuner.py*** file executes the modified versions of the function needed using the representative stored input parameters and the results of the function calls and collects timing data. The timing data are stored in the ***Archive/Whitebox_Analysis/Tuner_Results/{Function Name}*** folder together with the configuration info.
+  └ Parameters that the autotuner will explore. Each parameter consists of:  
+  - **name:** Name of variable must exist in dataframe columns.
+  - **min:**  Minimum possible value of parameter.
+  - **max:**  Maximum possible value of parameter.
+  - **multiplier:** Multiplier for the parameter value.
+  - **type:** Parameter type. (integer is currently supported)
 
 
 
-
+Next execute the following command to start the profiling:
+```
+python3 Blackbox_Tuner.py decoupled
+```
+The result files will be automatically moved to the **results_path** provided  

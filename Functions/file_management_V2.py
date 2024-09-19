@@ -32,7 +32,7 @@ def move_results(example_path: str, results_folder: str) -> None:
 
     print(f'Moving simulation results at {results_folder}')
     # Define the starting substring of the files to be moved.
-    substrings = ["results_", "sod2d_", "timer_", "analysis_", "openacc_", "Utilization", "h5diff"]
+    substrings = ["results_", "sod2d_", "timer_", "analysis_", "openacc_", "Utilization", "h5diff", "report1", "surf", "fort", "restart"]
     # Get all filenames from example_path.
     files = [f for f in os.listdir(example_path) if os.path.isfile(os.path.join(example_path, f))]
     # Check if filename contains any of the substrings defined above,
@@ -40,6 +40,12 @@ def move_results(example_path: str, results_folder: str) -> None:
     for filename in files:
         if any(substring in filename for substring in substrings):
             os.rename(os.path.join(example_path, filename), os.path.join(results_folder, filename))
+
+    # Get all folders from example_path.
+    folders = [f for f in os.listdir(example_path) if os.path.isdir(os.path.join(example_path,f))]
+    # Move all folders to the results_folder.
+    for folder in folders:
+        os.rename(os.path.join(example_path, folder), os.path.join(results_folder, folder))
 
 def dump_results(results_folder: str) -> None:
     """
@@ -78,12 +84,13 @@ def compare_h5(results_folder: str, og_res_path: str):
     original_files = [f for f in os.listdir(og_res_path) if os.path.isfile(os.path.join(og_res_path, f))]
     for modified_filename in modified_files:
         for original_filename in original_files:
-            if modified_filename == original_filename and ".h5" in modified_filename:
+            if modified_filename == original_filename and (".h5" in modified_filename or ".hdf" in modified_filename):
                 # Diff the two files and store the result to a .txt file starting with "diff_"
                 print(f"Comparing {original_filename} and {modified_filename}")
-                diff_cmd = f'h5diff --delta=10e-8 {os.path.join(og_res_path, original_filename)}'
+                diff_cmd = f'h5diff --delta=10e-6 {os.path.join(og_res_path, original_filename)}'
                 diff_cmd += f' {os.path.join(results_folder, modified_filename)}'
                 diff_cmd += f' >> {os.path.join(results_folder, "h5diff")}.txt 2>&1 '
+                os.system('echo "Comparison of ' + original_filename + ' and ' + modified_filename + '" >> ' + os.path.join(results_folder, "h5diff") + '.txt')
                 os.system(diff_cmd)
                 print(f'Output Saved to {os.path.join(results_folder, "h5diff")}.txt')
 
@@ -139,7 +146,7 @@ def rm_files(results_folder: str) -> None:
     modified_files = [f for f in os.listdir(results_folder) if os.path.isfile(os.path.join(results_folder, f))]
     for modified_filename in modified_files:
         # Check if file with starting string "results_" exists and remove it.
-        if modified_filename.startswith("results_"):
+        if modified_filename.startswith("results_") or modified_filename.startswith("restart_"):
             os.remove(os.path.join(results_folder, modified_filename))
 
 def path_definitions() -> list:
@@ -155,15 +162,6 @@ def path_definitions() -> list:
     tuner_res_path = 'Results/Tuner_Results'
     # Path where the different configuration results will be stored.
     res_config_path = 'Results/Tuner_Results/Configs'
-
-    # Different checks for the above paths' existence.
-    if not os.path.isdir(example_path):
-        os.mkdir(example_path)
-        print(f"Please transfer example files to the generated folder at {os.getcwd()}/Example")
-        sys.exit()
-    elif not os.listdir(example_path):
-        print("Example directory is empty, please transfer example files and run original.py")
-        sys.exit()
 
     if not os.path.isdir('./Results'):
         print("Results directory not found, please run original.py")

@@ -1,0 +1,7 @@
+{
+    "sod2d_path": "./SOD2D_Versions/sod2d_cpu/build/src/app_sod2d/sod2d",
+    "example_path": "{Example Path}",
+    "results_path": "Archive/{result_path_name}",
+    "rank_num": "{number_of_threads_to_use}",
+    "metric": "{intel_vtune_profiling_option}"
+}

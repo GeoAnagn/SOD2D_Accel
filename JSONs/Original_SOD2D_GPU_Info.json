@@ -1,0 +1,7 @@
+{
+    "sod2d_path": "./SOD2D_Versions/sod2d_profiling/build/src/app_sod2d/sod2d",
+    "example_path": "{Example Path}",
+    "results_path": "{result_path_name}",
+    "gpu_ids": "{GPU ID/s}",
+    "rank_num": "{Number of GPUs to use}"
+}

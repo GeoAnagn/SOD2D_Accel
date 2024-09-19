@@ -1,0 +1,135 @@
+{
+    "sod2d_path": "./SOD2D_Versions/sod2d_blackbox_decoupled/build/src/app_sod2d/sod2d",
+    "og_res_path": "{Original SOD2D Results Folder}",
+    "example_path": "{Example Folder}",
+    "results_path": "{Results Path}",
+    "gpu_ids": "{GPU ID/s}",
+    "rank_num": "{Number of GPUs to use}",
+    "dataframe_columns": [
+                            "gang_num_fcijk", 
+                            "worker_num_fcijk", 
+                            "vector_num_fcijk",
+                            "gang_num_fdijk", 
+                            "worker_num_fdijk", 
+                            "vector_num_fdijk",
+                            "gang_num_vaek",
+                            "worker_num_vaek",
+                            "vector_num_vaek",
+                            "gang_num_svs",
+                            "worker_num_svs",
+                            "vector_num_svs",
+                            "gang_num_vdr",
+                            "worker_num_vdr",
+                            "vector_num_vdr",
+                            "time"
+                        ],
+    "repetitions": 1000,
+    "configs_to_check": 250,
+    "parameters": [
+        {
+            "name": "gang_num_fcijk",
+            "min" : 1,
+            "max" : 250,
+            "multiplier": 2048,
+            "type": "integer"
+        },
+        {
+            "name": "worker_num_fcijk",
+            "min" : 1,
+            "max" : 1,
+            "multiplier": 1,
+            "type": "integer"
+        },
+        {
+            "name": "vector_num_fcijk",
+            "min" : 1,
+            "max" : 20,
+            "multiplier": 32,
+            "type": "integer"
+        },
+        {
+            "name": "gang_num_fdijk",
+            "min" : 1,
+            "max" : 250,
+            "multiplier": 2048,
+            "type": "integer"
+        },
+        {
+            "name": "worker_num_fdijk",
+            "min" : 1,
+            "max" : 1,
+            "multiplier": 1,
+            "type": "integer"
+        },
+        {
+            "name": "vector_num_fdijk",
+            "min" : 1,
+            "max" : 20,
+            "multiplier": 32,
+            "type": "integer"
+        },
+        {
+            "name": "gang_num_vaek",
+            "min" : 1,
+            "max" : 250,
+            "multiplier": 2048,
+            "type": "integer"
+        },
+        {
+            "name": "worker_num_vaek",
+            "min" : 1,
+            "max" : 1,
+            "multiplier": 1,
+            "type": "integer"
+        },
+        {
+            "name": "vector_num_vaek",
+            "min" : 1,
+            "max" : 20,
+            "multiplier": 32,
+            "type": "integer"
+        },
+        {
+            "name": "gang_num_svs",
+            "min" : 1,
+            "max" : 250,
+            "multiplier": 2048,
+            "type": "integer"
+        },
+        {
+            "name": "worker_num_svs",
+            "min" : 1,
+            "max" : 1,
+            "multiplier": 1,
+            "type": "integer"
+        },
+        {
+            "name": "vector_num_svs",
+            "min" : 1,
+            "max" : 20,
+            "multiplier": 32,
+            "type": "integer"
+        },
+        {
+            "name": "gang_num_vdr",
+            "min" : 1,
+            "max" : 250,
+            "multiplier": 2048,
+            "type": "integer"
+        },
+        {
+            "name": "worker_num_vdr",
+            "min" : 1,
+            "max" : 1,
+            "multiplier": 1,
+            "type": "integer"
+        },
+        {
+            "name": "vector_num_vdr",
+            "min" : 1,
+            "max" : 20,
+            "multiplier": 32,
+            "type": "integer"
+        }       
+    ]
+}
