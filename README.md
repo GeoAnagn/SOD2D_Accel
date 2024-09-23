@@ -68,7 +68,11 @@ cd ../../
 Parameters in file **sod2d_gitlab/src/lib_mainBaseClass/sources/TGVSolver.f90**   
 Enable tgv in file **sod2d_gitlab/src/app_sod2/sources/sod2d.f90**
 
-Now move to the **SOD2D_Accel/Scripts** folder and execute the **Initialize_SOD2D_versions.sh** to create the modified SOD2D versions.
+Now run the container as follows:
+```
+docker run --gpus all -dit --privileged -v {path_to_repo}:/home/apps/refmap geoaiagia/refmap:february /bin/bash
+```
+Lastlymove to the **SOD2D_Accel/Scripts** folder and execute the **Initialize_SOD2D_versions.sh** to create the modified SOD2D versions.
 ```
 cd Scripts
 ./Initialize_SOD2D_versions.sh
