@@ -29,7 +29,7 @@ def main():
     execute_cd = f'cd {example_path} &&'
     # Create command for SOD2D execution with nsys profiling.
     execute_sod2d = execute_cd + f' vtune -collect {metric} -r ./{metric} mpirun'
-    execute_sod2d = execute_sod2d + f' -np 1 --map-by node:PE={rank_num} {sod2d_path}'
+    execute_sod2d = execute_sod2d + f' -np 1 --allow-run-as-root --map-by node:PE={rank_num} {sod2d_path}'
     
     # Execute SOD2D.
     start = time.time()
