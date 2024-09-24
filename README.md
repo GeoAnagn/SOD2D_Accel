@@ -164,6 +164,11 @@ First modify the **Original_SOD2D_CPU_info.json** located in the **JSONs** folde
 - **metric**  
   └ Intel Vtune profiling metric (i.e. hotspots, performance_snapshot, threading)
 
+DO NOT FORGET to enable V-Tune variables:
+```
+source /opt/intel/oneapi/vtune/2024.1/vtune-vars.sh
+```
+
 Next execute the following command to start the profiling:
 ```
 python3 Original_SOD2D_CPU.py
