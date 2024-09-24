@@ -1,5 +1,5 @@
 {   
-    "sod2d_path": "./SOD2D_Versions/sod2d_blackbox_coupled/build/src/app_sod2d/sod2d",
+    "sod2d_path": "{full_path_up_to_here}/SOD2D_Versions/sod2d_blackbox_coupled/build/src/app_sod2d/sod2d",
     "og_res_path": "{Original SOD2D Results Folder}",
     "example_path": "{Example Folder}",
     "results_path": "{Results Path}",
