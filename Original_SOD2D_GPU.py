@@ -32,7 +32,7 @@ def main():
     print('Executing Sod2d Application')
     execute_cd = f'cd {example_path} &&'
     # Create command for SOD2D execution with nsys profiling.
-    execute_sod2d = execute_cd + ' nsys profile -t cuda,openacc,nvtx --cuda-memory-usage=true --stats=true mpirun -x UCX_NET_DEVICES=mlx5_0:1 -x HCOLL_MAIN_IB=mlx5_0:1'
+    execute_sod2d = execute_cd + ' nsys profile -t cuda,openacc,nvtx --cuda-memory-usage=true --stats=true mpirun --allow-run-as-root -x UCX_NET_DEVICES=mlx5_0:1 -x HCOLL_MAIN_IB=mlx5_0:1'
     execute_sod2d += f' -np {rank_num} {sod2d_path}'
     # Create command for SOD2D utilization capturing.
     execute_monitor = execute_cd + ' nvidia-smi dmon -s pucvmet > Utilization.csv'
